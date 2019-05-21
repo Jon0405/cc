@@ -33,9 +33,9 @@ void error(char *fmt, ...) {
 
 // find error point
 void error_at(char *loc, char *msg) {
-	int pos = loc - user_input;
+	int err_pos = loc - user_input;
 	fprintf(stderr, "%s\n", user_input);
-	fprintf(stderr, "%*s", pos, ""); // output space
+	fprintf(stderr, "%*s", err_pos, ""); // output space
 	fprintf(stderr, "^ %s\n", msg);
 	exit(1);
 }
