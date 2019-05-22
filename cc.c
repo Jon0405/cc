@@ -111,6 +111,7 @@ int consume(int ty) {
 
 Node *expr();
 Node *mul();
+Node *unary();
 Node *term();
 
 Node *expr() {
@@ -127,16 +128,24 @@ Node *expr() {
 }
 
 Node *mul() {
-        Node *node = term();
+        Node *node = unary();
 
         for (;;) {
                 if (consume('*'))
-                        node = new_node('*', node, term());
+                        node = new_node('*', node, unary());
                 else if (consume('/'))
-                        node = new_node('/', node, term());
+                        node = new_node('/', node, unary());
                 else
                         return node;
         }
+}
+
+Node *unary() {
+        if (consume('+'))
+                return term();
+        if (consume('-'))
+                return new_node('-', new_node_num(0), term());
+        return term();
 }
 
 Node *term() {
