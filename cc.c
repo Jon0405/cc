@@ -30,7 +30,13 @@ void vec_push(Vector *vec, void *elem) {
 // token type value table
 enum {
         TK_NUM = 256, // integer
-        TK_EOF,       // > 256 in ASCII, end of input
+        TK_EQ,
+        TK_NEQ,
+        TK_BT,
+        TK_BE,
+        TK_LT,
+        TK_LE,
+        TK_EOF,       // end of input
 };
 
 // token structure
@@ -74,6 +80,40 @@ void tokenize() {
                         continue;
                 }
 
+                if (*p == '!' || *p == '=' || *p == '>' || *p == '<') {
+                        char pp = *p;
+                        Token *token = malloc(sizeof(Token));
+                        token->input = p;
+                        p++;
+                        if (*p == '=') {
+                                switch (pp) {
+                                        case '!':
+                                                token->ty = TK_NEQ;
+                                                break;
+                                        case '=':
+                                                token->ty = TK_EQ;
+                                                break;
+                                        case '>':
+                                                token->ty = TK_BE;
+                                                break;
+                                        case '<':
+                                                token->ty = TK_LE;
+                                }
+                                vec_push(tokens, token);
+                                p++;
+                                continue;
+                        }
+                        switch (pp) {
+                                case '>':
+                                        token->ty = TK_BT;
+                                        break;
+                                case '<':
+                                        token->ty = TK_LT;
+                        }
+                        vec_push(tokens, token);
+                        continue;
+                }
+
                 if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')') {
                         Token *token = malloc(sizeof(Token));
                         token->ty = *p;
@@ -102,6 +142,10 @@ void tokenize() {
 
 enum {
         ND_NUM = 256, // integer node type
+        ND_EQ,
+        ND_NEQ,
+        ND_LT,
+        ND_LE,
 };
 
 typedef struct Node {
@@ -136,11 +180,48 @@ int consume(int ty) {
 }
 
 Node *expr();
+Node *equality();
+Node *relational();
+Node *add();
 Node *mul();
 Node *unary();
 Node *term();
 
 Node *expr() {
+        return equality();
+}
+
+Node *equality() {
+        Node *node = relational();
+
+        for (;;) {
+                if (consume(TK_EQ))
+                        node = new_node(ND_EQ, node, relational());
+                else if (consume(TK_NEQ))
+                        node = new_node(ND_NEQ, node, relational());
+                else
+                        return node;
+        }
+}
+
+Node *relational() {
+        Node *node = add();
+
+        for (;;) {
+                if (consume(TK_LT))
+                        node = new_node(ND_LT, node, add());
+                else if (consume(TK_LE))
+                        node = new_node(ND_LE, node, add());
+                else if (consume(TK_BT))
+                        node = new_node(ND_LT, add(), node);
+                else if (consume(TK_BE))
+                        node = new_node(ND_LE, add(), node);
+                else
+                        return node;
+        }
+}
+
+Node *add() {
         Node *node = mul();
 
         for (;;) {
@@ -203,6 +284,26 @@ void gen(Node *node) {
         printf("  pop rax\n");
 
         switch (node->ty) {
+                case ND_EQ:
+                        printf("  cmp rax, rdi\n");
+                        printf("  sete al\n");
+                        printf("  movzb rax, al\n");
+                        break;
+                case ND_NEQ:
+                        printf("  cmp rax, rdi\n");
+                        printf("  setne al\n");
+                        printf("  movzb rax, al\n");
+                        break;
+                case ND_LT:
+                        printf("  cmp rax, rdi\n");
+                        printf("  setl al\n");
+                        printf("  movzb rax, al\n");
+                        break;
+                case ND_LE:
+                        printf("  cmp rax, rdi\n");
+                        printf("  setle al\n");
+                        printf("  movzb rax, al\n");
+                        break;
                 case '+':
                         printf("  add rax, rdi\n");
                         break;
