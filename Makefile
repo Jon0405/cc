@@ -1,6 +1,7 @@
 cc: cc.c
 
 test: cc
+	./cc -test
 	./test.sh
 
 clean:
