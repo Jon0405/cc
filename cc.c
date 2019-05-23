@@ -4,6 +4,29 @@
 #include <stdlib.h>
 #include <string.h>
 
+// for variable token
+typedef struct {
+        void **data;
+        int capacity;
+        int len;
+} Vector;
+
+Vector *new_vector() {
+        Vector *vec = malloc(sizeof(Vector));
+        vec->data = malloc(sizeof(void *) * 16);
+        vec->capacity = 16;
+        vec->len = 0;
+        return vec;
+}
+
+void vec_push(Vector *vec, void *elem) {
+        if (vec->capacity == vec->len) {
+                vec->capacity *= 2;
+                vec->data = realloc(vec->data, sizeof(void *) * vec->capacity);
+        }
+        vec->data[vec->len++] = elem;
+}
+
 // token type value table
 enum {
         TK_NUM = 256, // integer
@@ -17,8 +40,8 @@ typedef struct {
         char *input; // for error messages
 } Token;
 
-// assume input is less than 100 tokens
-Token tokens[100];
+// variable lengths tokens
+Vector *tokens;
 
 char *user_input; // raw input data
 
@@ -44,7 +67,6 @@ void error_at(char *loc, char *msg) {
 void tokenize() {
         char *p = user_input;
 
-        int i = 0;
         while (*p) {
                 // skip space
                 if (isspace(*p)) {
@@ -53,25 +75,29 @@ void tokenize() {
                 }
 
                 if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')') {
-                        tokens[i].ty = *p;
-                        tokens[i].input = p;
-                        i++;
+                        Token *token = malloc(sizeof(Token));
+                        token->ty = *p;
+                        token->input = p;
+                        vec_push(tokens, token);
                         p++;
                         continue;
                 }
 
                 if (isdigit(*p)) {
-                        tokens[i].ty = TK_NUM;
-                        tokens[i].input = p;
-                        tokens[i].val = strtol(p, &p, 10);
-                        i++;
+                        Token *token = malloc(sizeof(Token));
+                        token->ty = TK_NUM;
+                        token->input = p;
+                        token->val = strtol(p, &p, 10);
+                        vec_push(tokens, token);
                         continue;
                 }
 
                 error_at(p, "tokenization failed!");
         }
-        tokens[i].ty = TK_EOF;
-        tokens[i].input = p;
+        Token *token = malloc(sizeof(Token));
+        token->ty = TK_EOF;
+        token->input = p;
+        vec_push(tokens, token);
 }
 
 enum {
@@ -103,7 +129,7 @@ Node *new_node_num(int val) {
 }
 
 int consume(int ty) {
-        if (tokens[pos].ty != ty)
+        if (((Token *)(tokens->data[pos]))->ty != ty)
                 return 0;
         pos++;
         return 1;
@@ -153,15 +179,15 @@ Node *term() {
         if (consume('(')) {
                 Node *node = expr();
                 if (!consume(')'))
-                        error_at(tokens[pos].input, "should be ')'!");
+                        error_at(((Token *)(tokens->data[pos]))->input, "should be ')'!");
                 return node;
         }
 
         // otherwise, it should be a value
-        if (tokens[pos].ty == TK_NUM)
-                return new_node_num(tokens[pos++].val);
+        if (((Token *)(tokens->data[pos]))->ty == TK_NUM)
+                return new_node_num(((Token *)(tokens->data[pos++]))->val);
 
-        error_at(tokens[pos].input, "unexpected token");
+        error_at(((Token *)(tokens->data[pos]))->input, "unexpected token");
 }
 
 void gen(Node *node) {
@@ -202,6 +228,7 @@ int main(int argc, char **argv) {
 
         // tokenize input
         user_input = argv[1];
+        tokens = new_vector();
         tokenize();
         Node *node = expr();
 
