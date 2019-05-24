@@ -1,0 +1,79 @@
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "cc.h"
+
+extern char *user_input;
+extern Vector *tokens;
+
+// tokenize user_input
+void tokenize() {
+	char *p = user_input;
+
+	while (*p) {
+		// skip space
+		if (isspace(*p)) {
+			p++;
+			continue;
+		}
+
+		if (*p == '!' || *p == '=' || *p == '>' || *p == '<') {
+			char pp = *p;
+			Token *token = malloc(sizeof(Token));
+			token->input = p;
+			p++;
+			if (*p == '=') {
+				switch (pp) {
+					case '!':
+						token->ty = TK_NEQ;
+						break;
+					case '=':
+						token->ty = TK_EQ;
+						break;
+					case '>':
+						token->ty = TK_BE;
+						break;
+					case '<':
+						token->ty = TK_LE;
+				}
+				vec_push(tokens, token);
+				p++;
+				continue;
+			}
+			switch (pp) {
+				case '>':
+					token->ty = TK_BT;
+					break;
+				case '<':
+					token->ty = TK_LT;
+			}
+			vec_push(tokens, token);
+			continue;
+		}
+
+		if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')') {
+			Token *token = malloc(sizeof(Token));
+			token->ty = *p;
+			token->input = p;
+			vec_push(tokens, token);
+			p++;
+			continue;
+		}
+
+		if (isdigit(*p)) {
+			Token *token = malloc(sizeof(Token));
+			token->ty = TK_NUM;
+			token->input = p;
+			token->val = strtol(p, &p, 10);
+			vec_push(tokens, token);
+			continue;
+		}
+
+		error_at(p, "tokenization failed!");
+	}
+	Token *token = malloc(sizeof(Token));
+	token->ty = TK_EOF;
+	token->input = p;
+	vec_push(tokens, token);
+}
