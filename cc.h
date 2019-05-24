@@ -17,6 +17,7 @@ enum {
 	TK_BE,
 	TK_LT,
 	TK_LE,
+	TK_IDENT,     // identifer
 	TK_EOF,       // end of input
 };
 

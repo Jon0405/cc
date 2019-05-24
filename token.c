@@ -70,6 +70,15 @@ void tokenize() {
 			continue;
 		}
 
+		if ('a' <= *p && *p <= 'z') {
+			Token *token = malloc(sizeof(Token));
+			token->ty = TK_IDENT;
+			token->input = p;
+			vec_push(tokens, token);
+			p++;
+			continue;
+		}
+
 		error_at(p, "tokenization failed!");
 	}
 	Token *token = malloc(sizeof(Token));
