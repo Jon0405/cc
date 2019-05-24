@@ -2,11 +2,10 @@
 #define _CC_H
 
 // for variable token
-typedef struct {
-	void **data;
-	int capacity;
-	int len;
-} Vector;
+typedef struct Vlist{
+	void *data;
+	struct Vlist *next;
+} Vlist;
 
 // token type value table
 enum {
@@ -50,8 +49,7 @@ void error(char *fmt, ...);
 void error_at(char *loc, char *msg);
 
 // vector operations
-Vector *new_vector();
-void vec_push(Vector *vec, void *elem);
+void vlist_push(Vlist *vlist, void *data);
 
 // tokenization
 void tokenize();
@@ -61,7 +59,10 @@ Node *new_node(int ty, Node *lhs, Node *rhs);
 Node *new_node_num(int val);
 
 // parsing
+Node *program();
+Node *stmt();
 Node *expr();
+Node *assign();
 Node *equality();
 Node *relational();
 Node *add();

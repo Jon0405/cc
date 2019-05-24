@@ -2,14 +2,12 @@
 
 #include "cc.h"
 
-extern Vector *tokens;
-
-int pos; // position of token
+extern Vlist *tokens;
 
 int consume(int ty) {
-	if (((Token *)(tokens->data[pos]))->ty != ty)
+	if (((Token *)(tokens->data))->ty != ty)
 		return 0;
-	pos++;
+	tokens = tokens->next;
 	return 1;
 }
 
@@ -103,13 +101,15 @@ Node *term() {
 	if (consume('(')) {
 		Node *node = expr();
 		if (!consume(')'))
-			error_at(((Token *)(tokens->data[pos]))->input, "should be ')'!");
+			error_at(((Token *)(tokens->data))->input, "should be ')'!");
 		return node;
 	}
 
 	// otherwise, it should be a value
-	if (((Token *)(tokens->data[pos]))->ty != TK_NUM)
-		error_at(((Token *)(tokens->data[pos]))->input, "unexpected token");
+	if (((Token *)(tokens->data))->ty != TK_NUM)
+		error_at(((Token *)(tokens->data))->input, "unexpected token");
 
-	return new_node_num(((Token *)(tokens->data[pos++]))->val);
+	Node *node = new_node_num(((Token *)(tokens->data))->val);
+	tokens = tokens->next;
+	return node;
 }

@@ -5,7 +5,7 @@
 #include "cc.h"
 
 extern char *user_input;
-extern Vector *tokens;
+extern Vlist *tokens;
 
 // tokenize user_input
 void tokenize() {
@@ -37,7 +37,7 @@ void tokenize() {
 					case '<':
 						token->ty = TK_LE;
 				}
-				vec_push(tokens, token);
+				vlist_push(tokens, token);
 				p++;
 				continue;
 			}
@@ -48,7 +48,7 @@ void tokenize() {
 				case '<':
 					token->ty = TK_LT;
 			}
-			vec_push(tokens, token);
+			vlist_push(tokens, token);
 			continue;
 		}
 
@@ -56,7 +56,7 @@ void tokenize() {
 			Token *token = malloc(sizeof(Token));
 			token->ty = *p;
 			token->input = p;
-			vec_push(tokens, token);
+			vlist_push(tokens, token);
 			p++;
 			continue;
 		}
@@ -66,7 +66,7 @@ void tokenize() {
 			token->ty = TK_NUM;
 			token->input = p;
 			token->val = strtol(p, &p, 10);
-			vec_push(tokens, token);
+			vlist_push(tokens, token);
 			continue;
 		}
 
@@ -74,7 +74,7 @@ void tokenize() {
 			Token *token = malloc(sizeof(Token));
 			token->ty = TK_IDENT;
 			token->input = p;
-			vec_push(tokens, token);
+			vlist_push(tokens, token);
 			p++;
 			continue;
 		}
@@ -84,5 +84,5 @@ void tokenize() {
 	Token *token = malloc(sizeof(Token));
 	token->ty = TK_EOF;
 	token->input = p;
-	vec_push(tokens, token);
+	vlist_push(tokens, token);
 }
