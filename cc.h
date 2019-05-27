@@ -16,7 +16,7 @@ enum {
 	TK_BE,
 	TK_LT,
 	TK_LE,
-	TK_IDENT,     // identifer
+	TK_IDENT,     // identifier
 	TK_EOF,       // end of input
 };
 
@@ -34,6 +34,7 @@ enum {
 	ND_NEQ,
 	ND_LT,
 	ND_LE,
+	ND_IDENT,     // indentifier
 };
 
 // node structure
@@ -42,6 +43,7 @@ typedef struct Node {
 	struct Node *lhs; // left side
 	struct Node *rhs; // right side
 	int val;	  // only use this when ty == ND_NUM
+	char name;        // only use this when ty == ND_IDENT
 } Node;
 
 // error
@@ -57,18 +59,19 @@ void tokenize();
 // node operations
 Node *new_node(int ty, Node *lhs, Node *rhs);
 Node *new_node_num(int val);
+Node *new_node_ident(int val);
 
 // parsing
-Node *program();
-Node *stmt();
-Node *expr();
+void program();
+Node *add();
 Node *assign();
 Node *equality();
-Node *relational();
-Node *add();
+Node *expr();
 Node *mul();
-Node *unary();
+Node *relational();
+Node *stmt();
 Node *term();
+Node *unary();
 
 // generate assembly code
 void gen(Node *node);

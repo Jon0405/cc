@@ -37,8 +37,8 @@ void tokenize() {
 					case '<':
 						token->ty = TK_LE;
 				}
-				vlist_push(tokens, token);
 				p++;
+				vlist_push(tokens, token);
 				continue;
 			}
 			switch (pp) {
@@ -47,12 +47,15 @@ void tokenize() {
 					break;
 				case '<':
 					token->ty = TK_LT;
+					break;
+				case '=':
+					token->ty = '=';
 			}
 			vlist_push(tokens, token);
 			continue;
 		}
 
-		if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')') {
+		if (*p == '+' || *p == '-' || *p == '*' || *p == '/' || *p == '(' || *p == ')' || *p == ';') {
 			Token *token = malloc(sizeof(Token));
 			token->ty = *p;
 			token->input = p;
@@ -74,6 +77,7 @@ void tokenize() {
 			Token *token = malloc(sizeof(Token));
 			token->ty = TK_IDENT;
 			token->input = p;
+			token->val = *p;
 			vlist_push(tokens, token);
 			p++;
 			continue;

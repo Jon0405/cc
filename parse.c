@@ -1,5 +1,4 @@
 #include <stdlib.h>
-
 #include "cc.h"
 
 extern Vlist *tokens;
@@ -11,25 +10,32 @@ int consume(int ty) {
 	return 1;
 }
 
-// node operations
-Node *new_node(int ty, Node *lhs, Node *rhs) {
-	Node *node = malloc(sizeof(Node));
-	node->ty = ty;
-	node->lhs = lhs;
-	node->rhs = rhs;
-	return node;
-}
-
-Node *new_node_num(int val) {
-	Node *node = malloc(sizeof(Node));
-	node->ty = ND_NUM;
-	node->val = val;
-	return node;
-}
+extern Node *code[100];
 
 // parsing
+Node *assign() {
+	Node *node = equality();
+	if (consume('='))
+		node = new_node('=', node, assign());
+	return node;
+}
+
 Node *expr() {
-	return equality();
+	return assign();
+}
+
+Node *stmt() {
+	Node *node = expr();
+	if (!consume(';'))
+		error_at(((Token *)(tokens->data))->input, "this token is not ';'!");
+	return node;
+}
+
+void program() {
+	int i = 0;
+	while (((Token *)(tokens->data))->ty != TK_EOF)
+		code[i++] = stmt();
+	code[i] = NULL;
 }
 
 Node *equality() {
@@ -105,11 +111,18 @@ Node *term() {
 		return node;
 	}
 
-	// otherwise, it should be a value
-	if (((Token *)(tokens->data))->ty != TK_NUM)
-		error_at(((Token *)(tokens->data))->input, "unexpected token");
+	// otherwise, it should be a value or identifier
+	if (((Token *)(tokens->data))->ty == TK_NUM) {
+		Node *node = new_node_num(((Token *)(tokens->data))->val);
+		tokens = tokens->next;
+		return node;
+	}
 
-	Node *node = new_node_num(((Token *)(tokens->data))->val);
-	tokens = tokens->next;
-	return node;
+	if (((Token *)(tokens->data))->ty == TK_IDENT) {
+		Node *node = new_node_ident(((Token *)(tokens->data))->val);
+		tokens = tokens->next;
+		return node;
+	}
+	
+	error_at(((Token *)(tokens->data))->input, "unexpected token");
 }

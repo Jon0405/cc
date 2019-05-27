@@ -6,6 +6,7 @@
 
 char *user_input;
 Vlist *tokens;
+Node *code[100];
 
 int main(int argc, char **argv) {
 	if (argc != 2) {
@@ -24,7 +25,7 @@ int main(int argc, char **argv) {
 	if (tokens->next == NULL) // empty vlist
 		exit(1);
 	tokens = tokens->next;
-	Node *node = expr();
+	program();
 
 	// header
 	printf(".intel_syntax noprefix\n");
@@ -32,13 +33,22 @@ int main(int argc, char **argv) {
 
 	printf("main:\n");
 
-	// recursively constract the abstract syntax tree and generate assembly code
-	gen(node);
+	// get 26 variables space
+	printf("  push rbp\n");
+	printf("  mov rbp, rsp\n");
+	printf("  sub rsp, 208\n");
 
-	// pop the result
-	printf("  pop rax\n");
+	// generate assembly code
+	for (int i = 0; code[i]; i++) {
+		gen(code[i]);
+
+		// pop the result
+		printf("  pop rax\n");
+	}
 
 	// return to shell
+	printf("  mov rsp, rbp\n");
+	printf("  pop rbp\n");
 	printf("  ret\n");
 
 	return 0;
