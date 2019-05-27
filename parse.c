@@ -25,7 +25,16 @@ Node *expr() {
 }
 
 Node *stmt() {
-	Node *node = expr();
+	Node *node;
+
+	if (consume(TK_RET)) {
+		node = malloc(sizeof(Node));
+		node->ty = ND_RET;
+		node->lhs = expr();
+	} else {
+		node = expr();
+	}
+
 	if (!consume(';'))
 		error_at(((Token *)(tokens->data))->input, "this token is not ';'!");
 	return node;

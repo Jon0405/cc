@@ -18,6 +18,7 @@ enum {
 	TK_LE,
 	TK_IDENT,     // identifier
 	TK_EOF,       // end of input
+	TK_RET,       // return
 };
 
 // token structure
@@ -35,6 +36,7 @@ enum {
 	ND_LT,
 	ND_LE,
 	ND_IDENT,     // indentifier
+	ND_RET,       // return
 };
 
 // node structure

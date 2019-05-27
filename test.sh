@@ -32,5 +32,6 @@ try 1 "1 >= 1;"
 try 1 "42 == 42;"
 try 0 "42 != 42;"
 try 8 "a = 3; b = 5; a + b;"
+try 8 "a = 3; b = 5; return a + b; return 42;"
 
 echo OK
