@@ -6,7 +6,7 @@
 
 char *user_input;
 Vlist *tokens;
-Node *code[100];
+Vlist *code;
 
 int main(int argc, char **argv) {
 	if (argc != 2) {
@@ -21,11 +21,14 @@ int main(int argc, char **argv) {
 	user_input = argv[1];
 	tokens = malloc(sizeof(Vlist));
 	tokenize();
-	// skip vlist head
 	if (tokens->next == NULL) // empty vlist
 		exit(1);
-	tokens = tokens->next;
+	tokens = tokens->next; // skip head
+	code = malloc(sizeof(Vlist));
 	program();
+	if (code->next == NULL) // empty vlist
+		exit(1);
+	code = code->next; // skip head
 
 	// header
 	printf(".intel_syntax noprefix\n");
@@ -39,8 +42,12 @@ int main(int argc, char **argv) {
 	printf("  sub rsp, 208\n");
 
 	// generate assembly code
-	for (int i = 0; code[i]; i++) {
-		gen(code[i]);
+	for (;;) {
+		if (code == NULL)
+			break;
+
+		gen((Node *)(code->data));
+		code = code->next;
 
 		// pop the result
 		printf("  pop rax\n");
