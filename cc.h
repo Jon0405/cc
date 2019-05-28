@@ -48,6 +48,13 @@ typedef struct Node {
 	char name;        // only use this when ty == ND_IDENT
 } Node;
 
+// map structure
+typedef struct {
+	char *key;
+	void *val;
+} Map;
+
+// export functions
 // error
 void error(char *fmt, ...);
 void error_at(char *loc, char *msg);
