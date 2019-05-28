@@ -7,6 +7,8 @@
 char *user_input;
 Vlist *tokens;
 Vlist *code;
+Vlist *variables;
+int vcount;
 
 int main(int argc, char **argv) {
 	if (argc != 2) {
@@ -19,12 +21,14 @@ int main(int argc, char **argv) {
 
 	// tokenize input
 	user_input = argv[1];
-	tokens = malloc(sizeof(Vlist));
+	tokens = new_vlist();
 	tokenize();
 	if (tokens->next == NULL) // empty vlist
 		exit(1);
 	tokens = tokens->next; // skip head
-	code = malloc(sizeof(Vlist));
+	code = new_vlist();
+	vcount = 0;
+	variables = new_vlist();
 	program();
 	if (code->next == NULL) // empty vlist
 		exit(1);
@@ -36,10 +40,10 @@ int main(int argc, char **argv) {
 
 	printf("main:\n");
 
-	// get 26 variables space
+	// get variables space
 	printf("  push rbp\n");
 	printf("  mov rbp, rsp\n");
-	printf("  sub rsp, 208\n");
+	printf("  sub rsp, %d\n", vcount * 8);
 
 	// generate assembly code
 	for (;;) {

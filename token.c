@@ -87,12 +87,18 @@ void tokenize() {
 		}
 
 		if ('a' <= *p && *p <= 'z') {
+			char *start = p;
+			int len = 1;
+			while (isalnum(*(++p)))
+				len++;
+			char *name = malloc(len * sizeof(char));
+			memcpy(name, start, len * sizeof(char));
+
 			Token *token = malloc(sizeof(Token));
 			token->ty = TK_IDENT;
 			token->input = p;
-			token->val = *p;
+			token->name = name;
 			vlist_push(tokens, token);
-			p++;
 			continue;
 		}
 

@@ -3,6 +3,8 @@
 
 extern Vlist *tokens;
 extern Vlist *code;
+extern Vlist *variables;
+extern int vcount;
 
 int consume(int ty) {
 	if (((Token *)(tokens->data))->ty != ty)
@@ -127,7 +129,13 @@ Node *term() {
 	}
 
 	if (((Token *)(tokens->data))->ty == TK_IDENT) {
-		node = new_node_ident(((Token *)(tokens->data))->val);
+		if (!map_get(variables, ((Token *)(tokens->data))->name))
+		{
+			int *place = malloc(sizeof(int));
+			*place = vcount++;
+			map_put(variables, ((Token *)(tokens->data))->name, place);
+		}
+		node = new_node_ident(((Token *)(tokens->data))->name);
 		tokens = tokens->next;
 		return node;
 	}

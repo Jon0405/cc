@@ -14,7 +14,7 @@ void test_map() {
 	char *testkey = "key";
 	char *testval = "val";
 
-	Vlist *map = malloc(sizeof(Vlist));
+	Vlist *map = new_vlist();
 
 	expect(__LINE__, 0, (long)map_get(map, testkey));
 

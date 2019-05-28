@@ -2,11 +2,15 @@
 
 #include "cc.h"
 
+extern Vlist *variables;
+extern int vcount;
+
 void gen_lval(Node *node) {
 	if (node->ty != ND_IDENT)
 		error("should assign to a variable!");
 
-	int offset = ('z' - node->name + 1) * 8;
+	int var_place = *(int *)map_get(variables, node->name);
+	int offset = (vcount - var_place) * 8;
 	printf("  mov rax, rbp\n");
 	printf("  sub rax, %d\n", offset);
 	printf("  push rax\n");

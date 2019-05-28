@@ -25,6 +25,7 @@ enum {
 typedef struct {
 	int ty;      // token type
 	int val;     // if ty == TK_NUM, the value
+	char *name;  // if ty == TK_IDENT, the identifier name
 	char *input; // for error messages
 } Token;
 
@@ -45,7 +46,7 @@ typedef struct Node {
 	struct Node *lhs; // left side
 	struct Node *rhs; // right side
 	int val;	  // only use this when ty == ND_NUM
-	char name;        // only use this when ty == ND_IDENT
+	char *name;       // only use this when ty == ND_IDENT
 } Node;
 
 // map structure
@@ -60,6 +61,7 @@ void error(char *fmt, ...);
 void error_at(char *loc, char *msg);
 
 // vector operations
+Vlist *new_vlist();
 void vlist_push(Vlist *vlist, void *data);
 
 // tokenization
@@ -68,7 +70,7 @@ void tokenize();
 // node operations
 Node *new_node(int ty, Node *lhs, Node *rhs);
 Node *new_node_num(int val);
-Node *new_node_ident(int val);
+Node *new_node_ident(char *name);
 
 // parsing
 void program();
@@ -87,5 +89,9 @@ void gen(Node *node);
 
 // test functions
 int runtest();
+
+// map
+void map_put(Vlist *map, char *key, void *val);
+void *map_get(Vlist *map, char *key);
 
 #endif
