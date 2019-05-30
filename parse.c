@@ -47,6 +47,16 @@ Node *stmt() {
 		node = new_node(ND_IF, node, rnode);
 
 		return node;
+	} else if (consume(TK_WHILE)) {
+		if (!consume('('))
+			error_at(((Token *)(tokens->data))->input, "should be '('!");
+		node = expr();
+		if (!consume(')'))
+			error_at(((Token *)(tokens->data))->input, "should be ')'!");
+
+		node = new_node(ND_WHILE, node, stmt());
+
+		return node;
 	} else {
 		node = expr();
 	}

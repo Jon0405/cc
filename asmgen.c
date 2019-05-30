@@ -4,6 +4,7 @@
 
 extern Vlist *variables;
 extern int vcount;
+extern int lbegincount;
 extern int lendcount;
 extern int lelsecount;
 
@@ -44,6 +45,20 @@ void gen(Node *node) {
 			printf(".Lelse%d:\n", else_num);
 			gen(node->rhs->rhs);
 		}
+		printf(".Lend%d:\n", end_num);
+		return;
+	}
+
+	if (node->ty == ND_WHILE) {
+		int begin_num = lbegincount++;
+		int end_num = lendcount++;
+		printf(".Lbegin%d:\n", begin_num);
+		gen(node->lhs);
+		printf("  pop rax\n");
+		printf("  cmp rax, 0\n");
+		printf("  je .Lend%d\n", end_num);
+		gen(node->rhs);
+		printf("  jmp .Lbegin%d\n", begin_num);
 		printf(".Lend%d:\n", end_num);
 		return;
 	}

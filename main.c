@@ -8,9 +8,10 @@ char *user_input;
 Vlist *tokens;
 Vlist *code;
 Vlist *variables;
-int vcount;     // variable count
-int lendcount;  // end label count
-int lelsecount; // else label count
+int vcount;      // variable count
+int lbegincount; // begin label count
+int lendcount;   // end label count
+int lelsecount;  // else label count
 
 int main(int argc, char **argv) {
 	if (argc != 2) {
@@ -25,6 +26,7 @@ int main(int argc, char **argv) {
 	vcount = 0;
 	lendcount = 0;
 	lelsecount = 0;
+	lbegincount = 0;
 
 	// tokenize input
 	user_input = argv[1];

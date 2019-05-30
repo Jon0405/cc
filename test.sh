@@ -40,5 +40,6 @@ try 8 "if (1) return 8; else return 42;"
 try 42 "if (0) return 8; else return 42;"
 try 8 "a = 10; if (a == 10) return 8; else return 42;"
 try 42 "a = 0; if (a == 10) return 8; else return 42;"
+try 10 "a = 0; while (a < 10) a = a + 1; return a;"
 
 echo OK

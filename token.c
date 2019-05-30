@@ -49,6 +49,15 @@ void tokenize() {
 			continue;
 		}
 
+		if (strncmp(p, "while", 5) == 0 && !is_alnum(p[5])) {
+			Token *token = malloc(sizeof(Token));
+			token->ty = TK_WHILE;
+			token->input = p;
+			vlist_push(tokens, token);
+			p += 5;
+			continue;
+		}
+
 		if (*p == '!' || *p == '=' || *p == '>' || *p == '<') {
 			char pp = *p;
 			Token *token = malloc(sizeof(Token));
