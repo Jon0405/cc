@@ -4,6 +4,7 @@
 
 extern Vlist *variables;
 extern int vcount;
+extern int lendcount;
 
 void gen_lval(Node *node) {
 	if (node->ty != ND_IDENT)
@@ -23,6 +24,17 @@ void gen(Node *node) {
 		printf("  mov rsp, rbp\n");
 		printf("  pop rbp\n");
 		printf("  ret\n");
+		return;
+	}
+
+	if (node->ty == ND_IF) {
+		int end_num = lendcount++;
+		gen(node->lhs);
+		printf("  pop rax\n");
+		printf("  cmp rax, 0\n");
+		printf("  je .Lend%d\n", end_num);
+		gen(node->rhs);
+		printf(".Lend%d:\n", end_num);
 		return;
 	}
 

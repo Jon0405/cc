@@ -34,5 +34,7 @@ try 0 "42 != 42;"
 try 8 "a = 3; b = 5; a + b;"
 try 8 "a = 3; b = 5; return a + b; return 42;"
 try 8 "abc = 3; bcd = 5; return abc + bcd; return 42;"
+try 8 "if (1) return 8;return 42;"
+try 42 "if (0) return 8;return 42;"
 
 echo OK

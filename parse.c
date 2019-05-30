@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <stdio.h>
+
 #include "cc.h"
 
 extern Vlist *tokens;
@@ -32,6 +34,14 @@ Node *stmt() {
 		node = malloc(sizeof(Node));
 		node->ty = ND_RET;
 		node->lhs = expr();
+	} else if (consume(TK_IF)) {
+		if (!consume('('))
+			error_at(((Token *)(tokens->data))->input, "should be '('!");
+		node = expr();
+		if (!consume(')'))
+			error_at(((Token *)(tokens->data))->input, "should be ')'!");
+		node = new_node(ND_IF, node, stmt());
+		return node;
 	} else {
 		node = expr();
 	}

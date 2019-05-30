@@ -9,6 +9,7 @@ Vlist *tokens;
 Vlist *code;
 Vlist *variables;
 int vcount;
+int lendcount;
 
 int main(int argc, char **argv) {
 	if (argc != 2) {
@@ -33,6 +34,7 @@ int main(int argc, char **argv) {
 	if (code->next == NULL) // empty vlist
 		exit(1);
 	code = code->next; // skip head
+	lendcount = 0;
 
 	// header
 	printf(".intel_syntax noprefix\n");

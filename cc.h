@@ -19,6 +19,10 @@ enum {
 	TK_IDENT,     // identifier
 	TK_EOF,       // end of input
 	TK_RET,       // return
+	TK_IF,        // if
+	TK_ELSE,      // else
+	TK_WHILE,     // while
+	TK_FOR,       // for
 };
 
 // token structure
@@ -38,6 +42,10 @@ enum {
 	ND_LE,
 	ND_IDENT,     // indentifier
 	ND_RET,       // return
+	ND_IF,        // if
+	ND_ELSE,      // else
+	ND_WHILE,     // while
+	ND_FOR,       // for
 };
 
 // node structure
