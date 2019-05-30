@@ -8,8 +8,9 @@ char *user_input;
 Vlist *tokens;
 Vlist *code;
 Vlist *variables;
-int vcount;
-int lendcount;
+int vcount;     // variable count
+int lendcount;  // end label count
+int lelsecount; // else label count
 
 int main(int argc, char **argv) {
 	if (argc != 2) {
@@ -20,6 +21,11 @@ int main(int argc, char **argv) {
 	if (!strcmp(argv[1], "-test"))
 		return runtest();
 
+	// initializaion
+	vcount = 0;
+	lendcount = 0;
+	lelsecount = 0;
+
 	// tokenize input
 	user_input = argv[1];
 	tokens = new_vlist();
@@ -28,13 +34,11 @@ int main(int argc, char **argv) {
 		exit(1);
 	tokens = tokens->next; // skip head
 	code = new_vlist();
-	vcount = 0;
 	variables = new_vlist();
 	program();
 	if (code->next == NULL) // empty vlist
 		exit(1);
 	code = code->next; // skip head
-	lendcount = 0;
 
 	// header
 	printf(".intel_syntax noprefix\n");

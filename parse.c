@@ -40,7 +40,12 @@ Node *stmt() {
 		node = expr();
 		if (!consume(')'))
 			error_at(((Token *)(tokens->data))->input, "should be ')'!");
-		node = new_node(ND_IF, node, stmt());
+
+		Node *rnode = stmt();
+		if (consume(TK_ELSE))
+			rnode = new_node(ND_ELSE, rnode, stmt());
+		node = new_node(ND_IF, node, rnode);
+
 		return node;
 	} else {
 		node = expr();
