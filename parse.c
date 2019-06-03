@@ -57,6 +57,23 @@ Node *stmt() {
 		node = new_node(ND_WHILE, node, stmt());
 
 		return node;
+	} else if (consume(TK_FOR)) {
+		if (!consume('('))
+			error_at(((Token *)(tokens->data))->input, "should be '('!");
+		Node *initnode = expr();
+		if (!consume(';'))
+			error_at(((Token *)(tokens->data))->input, "should be '('!");
+		Node *condnode = expr();
+		if (!consume(';'))
+			error_at(((Token *)(tokens->data))->input, "should be '('!");
+		Node *increnode = expr();
+		if (!consume(')'))
+			error_at(((Token *)(tokens->data))->input, "should be ')'!");
+		node = new_node(ND_FOR_INIT, initnode, new_node(ND_FOR_COND, condnode, increnode));
+
+		node = new_node(ND_FOR, node, stmt());
+
+		return node;
 	} else {
 		node = expr();
 	}

@@ -58,6 +58,15 @@ void tokenize() {
 			continue;
 		}
 
+		if (strncmp(p, "for", 3) == 0 && !is_alnum(p[3])) {
+			Token *token = malloc(sizeof(Token));
+			token->ty = TK_FOR;
+			token->input = p;
+			vlist_push(tokens, token);
+			p += 3;
+			continue;
+		}
+
 		if (*p == '!' || *p == '=' || *p == '>' || *p == '<') {
 			char pp = *p;
 			Token *token = malloc(sizeof(Token));

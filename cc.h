@@ -45,7 +45,9 @@ enum {
 	ND_IF,        // if
 	ND_ELSE,      // else
 	ND_WHILE,     // while
-	ND_FOR,       // for
+	ND_FOR,       // for loop
+	ND_FOR_INIT,
+	ND_FOR_COND,
 };
 
 // node structure
