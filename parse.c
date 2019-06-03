@@ -62,10 +62,10 @@ Node *stmt() {
 			error_at(((Token *)(tokens->data))->input, "should be '('!");
 		Node *initnode = expr();
 		if (!consume(';'))
-			error_at(((Token *)(tokens->data))->input, "should be '('!");
+			error_at(((Token *)(tokens->data))->input, "should be ';'!");
 		Node *condnode = expr();
 		if (!consume(';'))
-			error_at(((Token *)(tokens->data))->input, "should be '('!");
+			error_at(((Token *)(tokens->data))->input, "should be ';'!");
 		Node *increnode = expr();
 		if (!consume(')'))
 			error_at(((Token *)(tokens->data))->input, "should be ')'!");
@@ -74,12 +74,21 @@ Node *stmt() {
 		node = new_node(ND_FOR, node, stmt());
 
 		return node;
+	} else if (consume('{')) {
+		Vlist *stmts = new_vlist();
+		vlist_push(stmts, stmt());
+		while (!consume('}'))
+			vlist_push(stmts, stmt());
+
+		node = new_node_block(stmts);
+			
+		return node;
 	} else {
 		node = expr();
 	}
 
 	if (!consume(';'))
-		error_at(((Token *)(tokens->data))->input, "this token is not ';'!");
+		error_at(((Token *)(tokens->data))->input, "should be ';'!");
 	return node;
 }
 

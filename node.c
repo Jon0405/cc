@@ -25,3 +25,9 @@ Node *new_node_ident(char *name) {
 	return node;
 }
 
+Node *new_node_block(Vlist *stmts) {
+	Node *node = malloc(sizeof(Node));
+	node->ty = ND_BLOCK;
+	node->stmts = stmts;
+	return node;
+}

@@ -86,6 +86,19 @@ void gen(Node *node) {
 		return;
 	}
 
+	if (node->ty == ND_BLOCK) {
+		Vlist *curr = node->stmts;
+		if (curr->next == NULL)
+			error("empty statement!");
+		curr = curr->next; // skip list head
+		while (curr != NULL) {
+			gen((Node *)curr->data);
+			printf("  pop rax\n");
+			curr = curr->next;
+		}
+		return;
+	}
+
 	if (node->ty == ND_NUM) {
 		printf("  push %d\n", node->val);
 		return;
