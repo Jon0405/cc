@@ -66,14 +66,20 @@ void gen(Node *node) {
 	if (node->ty == ND_FOR) {
 		int begin_num = lbegincount++;
 		int end_num = lendcount++;
-		gen(node->lhs->lhs); // init
+		Node *nodeinit = node->lhs;
+		if (nodeinit->ty != ND_FOR_INIT)
+			error("not a vaild for loop format!");
+		Node *nodecond = nodeinit->rhs;
+		if (nodecond->ty != ND_FOR_COND)
+			error("not a vaild for loop format!");
+		gen(nodeinit->lhs); // init
 		printf(".Lbegin%d:\n", begin_num);
-		gen(node->lhs->rhs->lhs); // cond
+		gen(nodecond->lhs); // cond
 		printf("  pop rax\n");
 		printf("  cmp rax, 0\n");
 		printf("  je .Lend%d\n", end_num);
 		gen(node->rhs); // loop body
-		gen(node->lhs->rhs->rhs); // increment
+		gen(nodecond->rhs); // increment
 		printf("  jmp .Lbegin%d\n", begin_num);
 		printf(".Lend%d:", end_num);
 		return;
