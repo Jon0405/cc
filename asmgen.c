@@ -38,12 +38,13 @@ void gen(Node *node) {
 			printf("  je .Lend%d\n", end_num);
 			gen(node->rhs);
 		} else {
+			Node *nodeelse = node->rhs;
 			int else_num = lelsecount++;
 			printf("  je .Lelse%d\n", else_num);
-			gen(node->rhs->lhs);
+			gen(nodeelse->lhs);
 			printf("  jmp .Lend%d\n", end_num);
 			printf(".Lelse%d:\n", else_num);
-			gen(node->rhs->rhs);
+			gen(nodeelse->rhs);
 		}
 		printf(".Lend%d:\n", end_num);
 		return;
