@@ -104,12 +104,7 @@ void tokenize() {
 			continue;
 		}
 
-		if (
-		 *p == '+' || *p == '-' || *p == '*' || *p == '/' ||
-		 *p == '(' || *p == ')' ||
-		 *p == ';' ||
-		 *p == '{' || *p == '}'
-		) {
+		if (strchr("+-*/();{}", *p)) {
 			Token *token = malloc(sizeof(Token));
 			token->ty = *p;
 			token->input = p;
