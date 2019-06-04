@@ -99,6 +99,16 @@ void gen(Node *node) {
 		return;
 	}
 
+	if (node->ty == ND_CALL) {
+		printf("  push rbp\n");
+		printf("  mov rbp, rsp\n");
+		printf("  mov eax, 0\n");
+		printf("  call %s\n", node->name);
+		printf("  mov eax, 0\n");
+		printf("  pop rbp\n");
+		return;
+	}
+
 	if (node->ty == ND_NUM) {
 		printf("  push %d\n", node->val);
 		return;

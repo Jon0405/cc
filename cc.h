@@ -49,6 +49,7 @@ enum {
 	ND_FOR_INIT,
 	ND_FOR_COND,
 	ND_BLOCK,     // code block
+	ND_CALL,      // function call
 };
 
 // node structure
@@ -83,6 +84,7 @@ void tokenize();
 Node *new_node(int ty, Node *lhs, Node *rhs);
 Node *new_node_num(int val);
 Node *new_node_ident(char *name);
+Node *new_node_call(char *name);
 Node *new_node_block(Vlist *stmts);
 
 // parsing

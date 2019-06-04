@@ -17,6 +17,15 @@ try() {
   fi
 }
 
+tryfunc() {
+  input="$1"
+  ./cc "$input" > tmp.S
+  gcc -c ./test/funccall.c
+  gcc -o tmp tmp.S funccall.o
+  echo "test call functions in other files:"
+  ./tmp
+}
+
 try 0 "0;"
 try 42 "42;"
 try 21 "5+20-4;"
@@ -43,5 +52,6 @@ try 42 "a = 0; if (a == 10) return 8; else return 42;"
 try 10 "a = 0; while (a < 10) a = a + 1; return a;"
 try 10 "b = 0; for (a = 0; a < 10; a = a + 1) b = b + 1; return b;"
 try 20 "a = 0; for (b = 0; b < 10; b = b + 1) {a = a + 1; a = a + 1;} return a;"
+tryfunc "foo(); return 0;"
 
 echo OK

@@ -180,14 +180,22 @@ Node *term() {
 	}
 
 	if (((Token *)(tokens->data))->ty == TK_IDENT) {
-		if (!map_get(variables, ((Token *)(tokens->data))->name))
+		char *ident_name = ((Token *)(tokens->data))->name;
+		if (!map_get(variables, ident_name))
 		{
 			int *place = malloc(sizeof(int));
 			*place = vcount++;
-			map_put(variables, ((Token *)(tokens->data))->name, place);
+			map_put(variables, ident_name, place);
 		}
-		node = new_node_ident(((Token *)(tokens->data))->name);
 		tokens = tokens->next;
+
+		if (consume('(')) {
+			if (!consume(')'))
+				error_at(((Token *)(tokens->data))->input, "should be ')'!");
+			node = new_node_call(ident_name);
+		} else {
+			node = new_node_ident(ident_name);
+		}
 		return node;
 	}
 	
