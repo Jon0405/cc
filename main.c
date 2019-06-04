@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 	// get variables space
 	printf("  push rbp\n");
 	printf("  mov rbp, rsp\n");
-	printf("  sub rsp, %d\n", vcount * 8);
+	printf("  sub rsp, 0x%x\n", vcount * 8);
 
 	// generate assembly code
 	for (;;) {

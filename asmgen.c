@@ -15,7 +15,7 @@ void gen_lval(Node *node) {
 	int var_place = *(int *)map_get(variables, node->name);
 	int offset = (vcount - var_place) * 8;
 	printf("  mov rax, rbp\n");
-	printf("  sub rax, %d\n", offset);
+	printf("  sub rax, 0x%x\n", offset);
 	printf("  push rax\n");
 }
 
@@ -102,7 +102,9 @@ void gen(Node *node) {
 	if (node->ty == ND_CALL) {
 		printf("  push rbp\n");
 		printf("  mov rbp, rsp\n");
+		printf("  and rsp, -0x10\n");
 		printf("  call %s\n", node->name);
+		printf("  mov rsp, rbp\n");
 		printf("  pop rbp\n");
 		return;
 	}
