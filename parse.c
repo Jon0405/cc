@@ -190,9 +190,18 @@ Node *term() {
 		tokens = tokens->next;
 
 		if (consume('(')) {
+			node = new_node_call(ident_name);
+			node->argv = new_vlist();
+			for (;;) {
+				if (((Token *)(tokens->data))->ty != TK_IDENT && ((Token *)(tokens->data))->ty != TK_NUM)
+					error_at(((Token *)(tokens->data))->input, "should be identifier or number!");
+				vlist_push(node->argv, tokens->data);
+				tokens = tokens->next;
+				if (!consume(','))
+					break;
+			}
 			if (!consume(')'))
 				error_at(((Token *)(tokens->data))->input, "should be ')'!");
-			node = new_node_call(ident_name);
 		} else {
 			node = new_node_ident(ident_name);
 		}

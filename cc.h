@@ -58,8 +58,9 @@ typedef struct Node {
 	struct Node *lhs; // left side
 	struct Node *rhs; // right side
 	int val;	  // only use this when ty == ND_NUM
-	char *name;       // only use this when ty == ND_IDENT
+	char *name;       // only use this when ty == ND_IDENT or ty == ND_CALL
 	Vlist *stmts;     // only use this when ty == ND_BLOCK
+	Vlist *argv;      // only use this when ty == ND_CALL
 } Node;
 
 // map structure

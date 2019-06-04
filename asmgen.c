@@ -2,6 +2,8 @@
 
 #include "cc.h"
 
+char *reg_names[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+
 extern Vlist *variables;
 extern int vcount;
 extern int lbegincount;
@@ -102,6 +104,17 @@ void gen(Node *node) {
 	if (node->ty == ND_CALL) {
 		printf("  push rbp\n");
 		printf("  mov rbp, rsp\n");
+
+		int regcount = 0;
+		Vlist *curr = node->argv->next;
+		while (curr != NULL && regcount < 6) {
+			Token *t = (Token *)(curr->data);
+			if (t->ty != TK_NUM)
+				error("only support num arg!");
+			printf("  mov %s, %d\n", reg_names[regcount++], t->val);
+			curr = curr->next;
+		}
+
 		printf("  and rsp, -0x10\n");
 		printf("  call %s\n", node->name);
 		printf("  mov rsp, rbp\n");

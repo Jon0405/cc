@@ -1,3 +1,5 @@
 #include <stdio.h>
 
-void foo() { printf("Hello, World!\n"); }
+void foo(int x, int y) {
+	printf("%d\n", x + y);
+}

@@ -52,6 +52,6 @@ try 42 "a = 0; if (a == 10) return 8; else return 42;"
 try 10 "a = 0; while (a < 10) a = a + 1; return a;"
 try 10 "b = 0; for (a = 0; a < 10; a = a + 1) b = b + 1; return b;"
 try 20 "a = 0; for (b = 0; b < 10; b = b + 1) {a = a + 1; a = a + 1;} return a;"
-tryfunc "foo(); return 0;"
+tryfunc "foo(1, 2); return 0;"
 
 echo OK

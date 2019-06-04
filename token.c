@@ -67,7 +67,7 @@ void tokenize() {
 			continue;
 		}
 
-		if (*p == '!' || *p == '=' || *p == '>' || *p == '<') {
+		if (strchr("=!><", *p)) {
 			char pp = *p;
 			Token *token = malloc(sizeof(Token));
 			token->input = p;
@@ -104,7 +104,7 @@ void tokenize() {
 			continue;
 		}
 
-		if (strchr("+-*/();{}", *p)) {
+		if (strchr("+-*/();{},", *p)) {
 			Token *token = malloc(sizeof(Token));
 			token->ty = *p;
 			token->input = p;
