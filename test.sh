@@ -43,5 +43,6 @@ try 3 "main() {return foo();} foo() {return 3;}"
 try 3 "main() {return foo(1, 2);} foo(a, b) {return a + b;}"
 try 8 "main() {return fib(6);} fib(a) {if (a == 0) return 0; if (a == 1) return 1; return fib(a-1) + fib(a-2);}"
 try 10 "main() {a = 0; while (a < 10) a = a + 1; return a;}"
+try 3 "main() {a = b = 3; return a;}"
 
 echo OK
