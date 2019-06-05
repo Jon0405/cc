@@ -8,6 +8,7 @@ char *user_input;
 Vlist *tokens;
 Vlist *code;
 Vlist *variables;
+Vlist *functions;
 int vcount;      // variable count
 int lbegincount; // begin label count
 int lendcount;   // end label count
@@ -35,40 +36,49 @@ int main(int argc, char **argv) {
 	if (tokens->next == NULL) // empty vlist
 		exit(1);
 	tokens = tokens->next; // skip head
-	code = new_vlist();
-	variables = new_vlist();
+	functions = new_vlist();
+	code = variables = NULL;
 	program();
 	if (code->next == NULL) // empty vlist
 		exit(1);
-	code = code->next; // skip head
 
 	// header
 	printf(".intel_syntax noprefix\n");
-	printf(".global main\n");
 
-	printf("main:\n");
-
-	// get variables space
-	printf("  push rbp\n");
-	printf("  mov rbp, rsp\n");
-	printf("  sub rsp, %d\n", vcount * 8);
-
-	// generate assembly code
+	functions = functions->next; // skip list head
 	for (;;) {
-		if (code == NULL)
+		if (functions == NULL)
 			break;
 
-		gen((Node *)(code->data));
-		code = code->next;
+		Func *func = (Func *)functions->data;
+		code = func->code;
+		code = code->next; // skip list head
+		variables = func->variables;
+		
+		printf(".global %s\n", func->name);
+		printf("%s:\n", func->name);
 
-		// pop the result
-		printf("  pop rax\n");
+		// get variables space
+		printf("  push rbp\n");
+		printf("  mov rbp, rsp\n");
+		printf("  sub rsp, %d\n", vcount * 8);
+
+		// generate assembly code
+		for (;;) {
+			if (code == NULL)
+				break;
+
+			gen((Node *)(code->data));
+			code = code->next;
+
+			// pop the result
+			printf("  pop rax\n");
+		}
+
+		code = variables = NULL;
+		functions = functions->next;
 	}
 
-	// return to shell
-	printf("  mov rsp, rbp\n");
-	printf("  pop rbp\n");
-	printf("  ret\n");
 
 	return 0;
 }

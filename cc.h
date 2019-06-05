@@ -69,6 +69,12 @@ typedef struct {
 	void *val;
 } Map;
 
+typedef struct {
+	char *name;
+	Vlist *variables;
+	Vlist *code;
+} Func;
+
 // export functions
 // error
 void error(char *fmt, ...);

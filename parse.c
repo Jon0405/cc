@@ -1,10 +1,12 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "cc.h"
 
 extern Vlist *tokens;
 extern Vlist *code;
 extern Vlist *variables;
+extern Vlist *functions;
 extern int vcount;
 
 int consume(int ty) {
@@ -92,8 +94,22 @@ Node *stmt() {
 }
 
 void program() {
-	while (((Token *)(tokens->data))->ty != TK_EOF)
+	while (((Token *)(tokens->data))->ty != TK_EOF) {
+		if (((Token *)(tokens->data))->ty == TK_IDENT) {
+			Func *func = malloc(sizeof(Func));
+			code = func->code = new_vlist();
+			variables = func->variables = new_vlist();
+			Node *node = term();
+			if (node->ty != ND_CALL)
+				error("not a function definition!");
+			func->name = node->name;
+			free(node);
+			vlist_push(functions, func);			
+		}
+		if (code == NULL || variables == NULL)
+			error("not in a function!");
 		vlist_push(code, stmt());
+	}
 }
 
 Node *equality() {
@@ -185,14 +201,11 @@ Node *term() {
 		if (consume('(')) {
 			node = new_node_call(ident_name);
 			node->argv = new_vlist();
-			for (;;) {
+			while (!consume(')')) {
 				Node *arg = expr();
 				vlist_push(node->argv, arg);
-				if (!consume(','))
-					break;
+				consume(',');
 			}
-			if (!consume(')'))
-				error_at(((Token *)(tokens->data))->input, "should be ')'!");
 		} else {
 			if (!map_get(variables, ident_name))
 			{
