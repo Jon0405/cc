@@ -39,5 +39,6 @@ try 42 "main() {return 42;}"
 tryfunc 3 "main() {return foo(1, 2);}"
 tryfunc 3 "main() {a = 1; b = 2; return foo(a, b);}"
 try 3 "main() {return foo();} foo() {return 3;}"
+try 3 "main() {return foo(1, 2);} foo(a, b) {return a + b;}"
 
 echo OK

@@ -120,6 +120,21 @@ void gen(Node *node) {
 		return;
 	}
 
+	if (node->ty == ND_DEF) {
+		int regcount = 0;
+		Vlist *curr = node->argv->next; // skip list head
+		while (curr != NULL && regcount < 6) {
+			Node *nodearg = (Node *)curr->data;
+			gen_lval(nodearg);
+			printf("  push %s\n", reg_names[regcount++]);
+			printf("  pop rdi\n");
+			printf("  pop rax\n");
+			printf("  mov [rax], rdi\n");
+			curr = curr->next;
+		}
+		return;
+	}
+
 	if (node->ty == ND_NUM) {
 		printf("  push %d\n", node->val);
 		return;

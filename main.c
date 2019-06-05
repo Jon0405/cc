@@ -63,6 +63,9 @@ int main(int argc, char **argv) {
 		printf("  mov rbp, rsp\n");
 		printf("  sub rsp, %d\n", vcount * 8);
 
+		// set arguments to variables
+		gen(func->nodedef);
+
 		// generate assembly code
 		for (;;) {
 			if (code == NULL)

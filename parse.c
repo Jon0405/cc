@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "cc.h"
 
@@ -103,7 +102,8 @@ void program() {
 			if (node->ty != ND_CALL)
 				error("not a function definition!");
 			func->name = node->name;
-			free(node);
+			node->ty = ND_DEF;
+			func->nodedef = node;
 			vlist_push(functions, func);			
 		}
 		if (code == NULL || variables == NULL)

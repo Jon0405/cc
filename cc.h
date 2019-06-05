@@ -50,6 +50,7 @@ enum {
 	ND_FOR_COND,
 	ND_BLOCK,     // code block
 	ND_CALL,      // function call
+	ND_DEF,       // function definition
 };
 
 // node structure
@@ -60,7 +61,7 @@ typedef struct Node {
 	int val;	  // only use this when ty == ND_NUM
 	char *name;       // only use this when ty == ND_IDENT or ty == ND_CALL
 	Vlist *stmts;     // only use this when ty == ND_BLOCK
-	Vlist *argv;      // only use this when ty == ND_CALL
+	Vlist *argv;      // only use this when ty == ND_CALL or ty == ND_DEF
 } Node;
 
 // map structure
@@ -73,6 +74,7 @@ typedef struct {
 	char *name;
 	Vlist *variables;
 	Vlist *code;
+	Node *nodedef;    // for arguments
 } Func;
 
 // export functions
