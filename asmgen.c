@@ -93,10 +93,11 @@ void gen(Node *node) {
 		if (curr->next == NULL)
 			error("empty statement!");
 		curr = curr->next; // skip list head
-		while (curr != NULL) {
+		for (;;) {
 			gen((Node *)curr->data);
-			printf("  pop rax\n");
 			curr = curr->next;
+			if (curr == NULL)
+				break;
 		}
 		return;
 	}

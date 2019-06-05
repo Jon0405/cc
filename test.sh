@@ -36,9 +36,11 @@ tryfunc() {
 }
 
 try 42 "main() {return 42;}"
+try 42 "main() {if (1) return 42; return 8;}"
 tryfunc 3 "main() {return foo(1, 2);}"
 tryfunc 3 "main() {a = 1; b = 2; return foo(a, b);}"
 try 3 "main() {return foo();} foo() {return 3;}"
 try 3 "main() {return foo(1, 2);} foo(a, b) {return a + b;}"
+try 8 "main() {return fib(6);} fib(a) {if (a == 0) return 0; if (a == 1) return 1; return fib(a-1) + fib(a-2);}"
 
 echo OK

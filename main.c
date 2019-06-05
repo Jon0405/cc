@@ -73,9 +73,6 @@ int main(int argc, char **argv) {
 
 			gen((Node *)(code->data));
 			code = code->next;
-
-			// pop the result
-			printf("  pop rax\n");
 		}
 
 		code = variables = NULL;
