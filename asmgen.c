@@ -15,9 +15,9 @@ void gen_lval(Node *node) {
 		error("should assign to a variable!");
 
 	int var_place = *(int *)map_get(variables, node->name);
-	int offset = (vcount - var_place) * 8;
+	int offset = (vcount - var_place + 1) * 8;
 	printf("  mov rax, rbp\n");
-	printf("  sub rax, 0x%x\n", offset);
+	printf("  sub rax, %d\n", offset);
 	printf("  push rax\n");
 }
 
@@ -102,23 +102,21 @@ void gen(Node *node) {
 	}
 
 	if (node->ty == ND_CALL) {
-		printf("  push rbp\n");
-		printf("  mov rbp, rsp\n");
-
 		int regcount = 0;
-		Vlist *curr = node->argv->next;
+		Vlist *curr = node->argv->next; // skip list head
 		while (curr != NULL && regcount < 6) {
-			Token *t = (Token *)(curr->data);
-			if (t->ty != TK_NUM)
-				error("only support num arg!");
-			printf("  mov %s, %d\n", reg_names[regcount++], t->val);
+			Node *nodearg = (Node *)curr->data;
+			gen(nodearg);
+			printf("  pop %s\n", reg_names[regcount++]);
 			curr = curr->next;
 		}
-
+		printf("  push rbp\n");
+		printf("  mov rbp, rsp\n");
 		printf("  and rsp, -0x10\n");
 		printf("  call %s\n", node->name);
 		printf("  mov rsp, rbp\n");
 		printf("  pop rbp\n");
+		printf("  push rax\n");
 		return;
 	}
 

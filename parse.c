@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "cc.h"
 
@@ -181,28 +180,26 @@ Node *term() {
 
 	if (((Token *)(tokens->data))->ty == TK_IDENT) {
 		char *ident_name = ((Token *)(tokens->data))->name;
-		if (!map_get(variables, ident_name))
-		{
-			int *place = malloc(sizeof(int));
-			*place = vcount++;
-			map_put(variables, ident_name, place);
-		}
 		tokens = tokens->next;
 
 		if (consume('(')) {
 			node = new_node_call(ident_name);
 			node->argv = new_vlist();
 			for (;;) {
-				if (((Token *)(tokens->data))->ty != TK_IDENT && ((Token *)(tokens->data))->ty != TK_NUM)
-					error_at(((Token *)(tokens->data))->input, "should be identifier or number!");
-				vlist_push(node->argv, tokens->data);
-				tokens = tokens->next;
+				Node *arg = expr();
+				vlist_push(node->argv, arg);
 				if (!consume(','))
 					break;
 			}
 			if (!consume(')'))
 				error_at(((Token *)(tokens->data))->input, "should be ')'!");
 		} else {
+			if (!map_get(variables, ident_name))
+			{
+				int *place = malloc(sizeof(int));
+				*place = ++vcount;
+				map_put(variables, ident_name, place);
+			}
 			node = new_node_ident(ident_name);
 		}
 		return node;

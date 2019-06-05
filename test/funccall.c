@@ -1,5 +1,3 @@
-#include <stdio.h>
-
-void foo(int x, int y) {
-	printf("%d\n", x + y);
+int foo(int x, int y) {
+	return("%d\n", x + y);
 }
