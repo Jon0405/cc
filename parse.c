@@ -16,7 +16,38 @@ int consume(int ty) {
 	return 1;
 }
 
-// parsing
+/* parsing tokens
+program    = funcdef stmt
+funcdef    = type 
+stmt       = "return" expr ";"
+           | expr ";"
+           | "{" stmt* "}"
+           | "if" "(" expr ")" stmt ("else" stmt)?
+           | "while" "(" expr ")" stmt
+           | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+expr       = assign
+assign     = equality ("=" assign)?
+equality   = relational ("==" relational | "!=" relational)*
+relational = add ("<" add | "<=" add | ">" add | ">=" add)*
+add        = mul ("+" mul | "-" mul)*
+mul        = unary ("*" unary | "/" unary)*
+unary      = ("+" | "-")? type
+type       = ("int")? term
+term       = num
+           | ident ("(" (expr (",")?)*? ")")? 
+           | "(" expr ")"
+*/
+Node *stmt();
+Node *expr();
+Node *assign();
+Node *equality();
+Node *relational();
+Node *add();
+Node *mul();
+Node *unary();
+Node *type();
+Node *term();
+
 Node *assign() {
 	Node *node = equality();
 	if (consume('='))
@@ -154,6 +185,27 @@ Node *unary() {
 		return term();
 	if (consume('-'))
 		return new_node('-', new_node_num(0), term());
+	return type();
+}
+
+Node *type() {
+	if (((Token *)(tokens->data))->ty == TK_TYPE) {
+		Type *type = malloc(sizeof(Type));
+		type->ty = ((Token *)(tokens->data))->varty;
+		tokens = tokens->next;
+		char *ident_name = ((Token *)(tokens->data))->name;
+		if (map_get(variables, ident_name))
+			error("conflict declaration");
+
+		if (((Token *)(tokens->next->data))->ty != '(') {
+			int *place = malloc(sizeof(int));
+			*place = ++vcount;
+			map_put(variables, ident_name, place);
+			map_put(types, ident_name, type);
+		}
+
+	}
+
 	return term();
 }
 
@@ -172,27 +224,6 @@ Node *term() {
 	if (((Token *)(tokens->data))->ty == TK_NUM) {
 		node = new_node_num(((Token *)(tokens->data))->val);
 		tokens = tokens->next;
-		return node;
-	}
-
-	if (((Token *)(tokens->data))->ty == TK_TYPE) {
-		Type *type = malloc(sizeof(Type));
-		type->ty = ((Token *)(tokens->data))->varty;
-		tokens = tokens->next;
-		char *ident_name = ((Token *)(tokens->data))->name;
-		if (map_get(variables, ident_name))
-			error("conflict declaration");
-
-		if (((Token *)(tokens->next->data))->ty != '(') {
-			int *place = malloc(sizeof(int));
-			*place = ++vcount;
-			map_put(variables, ident_name, place);
-			map_put(types, ident_name, type);
-		}
-
-		node = term();
-		if (node->ty != ND_IDENT && node->ty != ND_CALL)
-			error("not a identifier or a function");
 		return node;
 	}
 
@@ -220,21 +251,26 @@ Node *term() {
 	return node; // prevent compiler warning
 }
 
+void funcdef() {
+	if (((Token *)(tokens->data))->ty != TK_TYPE)
+		return;
+
+	Func *func = malloc(sizeof(Func));
+	code = func->code = new_vlist();
+	variables = func->variables = new_vlist();
+	types = func->types = new_vlist();
+	Node *node = type();
+	if (node->ty != ND_CALL)
+		error("not a function definition!");
+	func->name = node->name;
+	node->ty = ND_DEF;
+	func->nodedef = node;
+	vlist_push(functions, func);
+}
+
 void program() {
 	while (((Token *)(tokens->data))->ty != TK_EOF) {
-		if (((Token *)(tokens->data))->ty == TK_TYPE) {
-			Func *func = malloc(sizeof(Func));
-			code = func->code = new_vlist();
-			variables = func->variables = new_vlist();
-			types = func->types = new_vlist();
-			Node *node = term();
-			if (node->ty != ND_CALL)
-				error("not a function definition!");
-			func->name = node->name;
-			node->ty = ND_DEF;
-			func->nodedef = node;
-			vlist_push(functions, func);
-		}
+		funcdef();
 		if (code == NULL || variables == NULL || types == NULL)
 			error("not in a function!");
 		vlist_push(code, stmt());

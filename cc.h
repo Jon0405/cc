@@ -112,15 +112,6 @@ Node *new_node_block(Vlist *stmts);
 
 // parsing
 void program();
-Node *add();
-Node *assign();
-Node *equality();
-Node *expr();
-Node *mul();
-Node *relational();
-Node *stmt();
-Node *term();
-Node *unary();
 
 // generate assembly code
 void gen(Node *node);
