@@ -85,6 +85,7 @@ typedef struct {
 
 typedef struct {
 	char *name;
+	int *vcount;
 	Vlist *variables;
 	Vlist *types;
 	Vlist *code;

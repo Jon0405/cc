@@ -6,7 +6,7 @@ char *reg_names[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 extern Vlist *variables;
 extern Vlist *var_type;
-extern int vcount;
+extern int *vcount;
 extern int lbegincount;
 extern int lendcount;
 extern int lelsecount;
@@ -16,7 +16,7 @@ void gen_lval(Node *node) {
 		error("should assign to a variable!");
 
 	int var_place = *(int *)map_get(variables, node->name);
-	int offset = (vcount - var_place + 1) * 8;
+	int offset = (*vcount - var_place + 1) * 8;
 	printf("  mov rax, rbp\n");
 	printf("  sub rax, %d\n", offset);
 	printf("  push rax\n");

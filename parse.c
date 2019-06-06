@@ -7,7 +7,7 @@ extern Vlist *code;
 extern Vlist *variables;
 extern Vlist *types;
 extern Vlist *functions;
-extern int vcount;
+extern int *vcount;
 
 int consume(int ty) {
 	if (((Token *)(tokens->data))->ty != ty)
@@ -199,7 +199,7 @@ Node *type() {
 
 		if (((Token *)(tokens->next->data))->ty != '(') {
 			int *place = malloc(sizeof(int));
-			*place = ++vcount;
+			*place = ++(*vcount);
 			map_put(variables, ident_name, place);
 			map_put(types, ident_name, type);
 		}
@@ -251,27 +251,35 @@ Node *term() {
 	return node; // prevent compiler warning
 }
 
+#define new_intptr(i) do { i = malloc(sizeof(int)); *i = 0; } while (0);
+
 void funcdef() {
 	if (((Token *)(tokens->data))->ty != TK_TYPE)
 		return;
 
+	// initialization
 	Func *func = malloc(sizeof(Func));
 	code = func->code = new_vlist();
+	new_intptr(func->vcount);
+	vcount = func->vcount;
 	variables = func->variables = new_vlist();
 	types = func->types = new_vlist();
+
 	Node *node = type();
 	if (node->ty != ND_CALL)
 		error("not a function definition!");
+
+	node->ty = ND_DEF; // change node type
 	func->name = node->name;
-	node->ty = ND_DEF;
 	func->nodedef = node;
+
 	vlist_push(functions, func);
 }
 
 void program() {
 	while (((Token *)(tokens->data))->ty != TK_EOF) {
 		funcdef();
-		if (code == NULL || variables == NULL || types == NULL)
+		if (code == NULL || variables == NULL || types == NULL || vcount == NULL)
 			error("not in a function!");
 		vlist_push(code, stmt());
 	}

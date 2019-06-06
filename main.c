@@ -4,13 +4,19 @@
 
 #include "cc.h"
 
-char *user_input;
-Vlist *tokens;
-Vlist *code;
-Vlist *variables;
-Vlist *types;
-Vlist *functions;
-int vcount;      // variable count
+char *user_input; // raw input data
+
+// for tokenizer
+Vlist *tokens; // token list
+
+// for parser
+int *vcount;      // variable count
+Vlist *code;      // code list
+Vlist *variables; // variable map
+Vlist *types;     // variable type map
+Vlist *functions; // function list
+
+// for assembly code generator
 int lbegincount; // begin label count
 int lendcount;   // end label count
 int lelsecount;  // else label count
@@ -25,7 +31,6 @@ int main(int argc, char **argv) {
 		return runtest();
 
 	// initializaion
-	vcount = 0;
 	lendcount = 0;
 	lelsecount = 0;
 	lbegincount = 0;
@@ -51,9 +56,11 @@ int main(int argc, char **argv) {
 		if (functions == NULL)
 			break;
 
+		// initialization
 		Func *func = (Func *)functions->data;
 		code = func->code;
 		code = code->next; // skip list head
+		vcount = func->vcount;
 		variables = func->variables;
 		types = func->types;
 		
@@ -63,7 +70,7 @@ int main(int argc, char **argv) {
 		// get variables space
 		printf("  push rbp\n");
 		printf("  mov rbp, rsp\n");
-		printf("  sub rsp, %d\n", vcount * 8);
+		printf("  sub rsp, %d\n", *vcount * 8);
 
 		// set arguments to variables
 		gen(func->nodedef);
@@ -77,7 +84,7 @@ int main(int argc, char **argv) {
 			code = code->next;
 		}
 
-		code = variables = types = NULL;
+		code = variables = types = NULL; vcount = NULL; // leave from the function
 		functions = functions->next;
 	}
 
