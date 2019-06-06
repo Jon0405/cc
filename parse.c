@@ -5,7 +5,7 @@
 extern Vlist *tokens;
 extern Vlist *code;
 extern Vlist *variables;
-extern Vlist *var_type;
+extern Vlist *types;
 extern Vlist *functions;
 extern int vcount;
 
@@ -93,27 +93,6 @@ Node *stmt() {
 	return node;
 }
 
-void program() {
-	while (((Token *)(tokens->data))->ty != TK_EOF) {
-		if (((Token *)(tokens->data))->ty == TK_TYPE) {
-			Func *func = malloc(sizeof(Func));
-			code = func->code = new_vlist();
-			variables = func->variables = new_vlist();
-			var_type = func->var_type = new_vlist();
-			Node *node = term();
-			if (node->ty != ND_CALL)
-				error("not a function definition!");
-			func->name = node->name;
-			node->ty = ND_DEF;
-			func->nodedef = node;
-			vlist_push(functions, func);			
-		}
-		if (code == NULL || variables == NULL || var_type == NULL)
-			error("not in a function!");
-		vlist_push(code, stmt());
-	}
-}
-
 Node *equality() {
 	Node *node = relational();
 
@@ -197,8 +176,8 @@ Node *term() {
 	}
 
 	if (((Token *)(tokens->data))->ty == TK_TYPE) {
-		int *varty = malloc(sizeof(int));
-		*varty = ((Token *)(tokens->data))->varty;
+		Type *type = malloc(sizeof(Type));
+		type->ty = ((Token *)(tokens->data))->varty;
 		tokens = tokens->next;
 		char *ident_name = ((Token *)(tokens->data))->name;
 		if (map_get(variables, ident_name))
@@ -208,7 +187,7 @@ Node *term() {
 			int *place = malloc(sizeof(int));
 			*place = ++vcount;
 			map_put(variables, ident_name, place);
-			map_put(var_type, ident_name, varty);
+			map_put(types, ident_name, type);
 		}
 
 		node = term();
@@ -239,4 +218,25 @@ Node *term() {
 	
 	error_at(((Token *)(tokens->data))->input, "unexpected token");
 	return node; // prevent compiler warning
+}
+
+void program() {
+	while (((Token *)(tokens->data))->ty != TK_EOF) {
+		if (((Token *)(tokens->data))->ty == TK_TYPE) {
+			Func *func = malloc(sizeof(Func));
+			code = func->code = new_vlist();
+			variables = func->variables = new_vlist();
+			types = func->types = new_vlist();
+			Node *node = term();
+			if (node->ty != ND_CALL)
+				error("not a function definition!");
+			func->name = node->name;
+			node->ty = ND_DEF;
+			func->nodedef = node;
+			vlist_push(functions, func);
+		}
+		if (code == NULL || variables == NULL || types == NULL)
+			error("not in a function!");
+		vlist_push(code, stmt());
+	}
 }

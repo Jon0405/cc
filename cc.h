@@ -7,6 +7,17 @@ typedef struct Vlist{
 	struct Vlist *next;
 } Vlist;
 
+// type
+enum {
+	INT, // int
+	PTR, // pointer
+};
+
+typedef struct Type {
+	int ty;
+	struct Type *prtof;
+} Type;
+
 // token type value table
 enum {
 	TK_NUM = 256, // integer
@@ -24,11 +35,6 @@ enum {
 	TK_WHILE,     // while
 	TK_FOR,       // for
 	TK_TYPE,
-};
-
-// variable type
-enum {
-	TY_INT = 256, // int
 };
 
 // token structure
@@ -80,7 +86,7 @@ typedef struct {
 typedef struct {
 	char *name;
 	Vlist *variables;
-	Vlist *var_type;
+	Vlist *types;
 	Vlist *code;
 	Node *nodedef;    // for arguments
 } Func;
