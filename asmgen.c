@@ -5,6 +5,7 @@
 char *reg_names[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 extern Vlist *variables;
+extern Vlist *var_type;
 extern int vcount;
 extern int lbegincount;
 extern int lendcount;

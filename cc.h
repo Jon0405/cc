@@ -23,12 +23,19 @@ enum {
 	TK_ELSE,      // else
 	TK_WHILE,     // while
 	TK_FOR,       // for
+	TK_TYPE,
+};
+
+// variable type
+enum {
+	TY_INT = 256, // int
 };
 
 // token structure
 typedef struct {
 	int ty;      // token type
 	int val;     // if ty == TK_NUM, the value
+	int varty;   // if ty == TK_TYPE, the variable typee
 	char *name;  // if ty == TK_IDENT, the identifier name
 	char *input; // for error messages
 } Token;
@@ -73,6 +80,7 @@ typedef struct {
 typedef struct {
 	char *name;
 	Vlist *variables;
+	Vlist *var_type;
 	Vlist *code;
 	Node *nodedef;    // for arguments
 } Func;

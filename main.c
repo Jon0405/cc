@@ -8,6 +8,7 @@ char *user_input;
 Vlist *tokens;
 Vlist *code;
 Vlist *variables;
+Vlist *var_type;
 Vlist *functions;
 int vcount;      // variable count
 int lbegincount; // begin label count
@@ -54,6 +55,7 @@ int main(int argc, char **argv) {
 		code = func->code;
 		code = code->next; // skip list head
 		variables = func->variables;
+		var_type = func->var_type;
 		
 		printf(".global %s\n", func->name);
 		printf("%s:\n", func->name);
@@ -75,7 +77,7 @@ int main(int argc, char **argv) {
 			code = code->next;
 		}
 
-		code = variables = NULL;
+		code = variables = var_type = NULL;
 		functions = functions->next;
 	}
 

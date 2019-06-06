@@ -5,6 +5,7 @@
 extern Vlist *tokens;
 extern Vlist *code;
 extern Vlist *variables;
+extern Vlist *var_type;
 extern Vlist *functions;
 extern int vcount;
 
@@ -94,10 +95,11 @@ Node *stmt() {
 
 void program() {
 	while (((Token *)(tokens->data))->ty != TK_EOF) {
-		if (((Token *)(tokens->data))->ty == TK_IDENT) {
+		if (((Token *)(tokens->data))->ty == TK_TYPE) {
 			Func *func = malloc(sizeof(Func));
 			code = func->code = new_vlist();
 			variables = func->variables = new_vlist();
+			var_type = func->var_type = new_vlist();
 			Node *node = term();
 			if (node->ty != ND_CALL)
 				error("not a function definition!");
@@ -106,7 +108,7 @@ void program() {
 			func->nodedef = node;
 			vlist_push(functions, func);			
 		}
-		if (code == NULL || variables == NULL)
+		if (code == NULL || variables == NULL || var_type == NULL)
 			error("not in a function!");
 		vlist_push(code, stmt());
 	}
@@ -194,6 +196,27 @@ Node *term() {
 		return node;
 	}
 
+	if (((Token *)(tokens->data))->ty == TK_TYPE) {
+		int *varty = malloc(sizeof(int));
+		*varty = ((Token *)(tokens->data))->varty;
+		tokens = tokens->next;
+		char *ident_name = ((Token *)(tokens->data))->name;
+		if (map_get(variables, ident_name))
+			error("conflict declaration");
+
+		if (((Token *)(tokens->next->data))->ty != '(') {
+			int *place = malloc(sizeof(int));
+			*place = ++vcount;
+			map_put(variables, ident_name, place);
+			map_put(var_type, ident_name, varty);
+		}
+
+		node = term();
+		if (node->ty != ND_IDENT && node->ty != ND_CALL)
+			error("not a identifier or a function");
+		return node;
+	}
+
 	if (((Token *)(tokens->data))->ty == TK_IDENT) {
 		char *ident_name = ((Token *)(tokens->data))->name;
 		tokens = tokens->next;
@@ -208,11 +231,7 @@ Node *term() {
 			}
 		} else {
 			if (!map_get(variables, ident_name))
-			{
-				int *place = malloc(sizeof(int));
-				*place = ++vcount;
-				map_put(variables, ident_name, place);
-			}
+				error("undeclared variable!");
 			node = new_node_ident(ident_name);
 		}
 		return node;
