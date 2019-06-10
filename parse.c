@@ -189,10 +189,19 @@ Node *unary() {
 }
 
 Node *type() {
-	if (((Token *)(tokens->data))->ty == TK_TYPE) {
-		Type *type = malloc(sizeof(Type));
-		type->ty = ((Token *)(tokens->data))->varty;
+	int ty = ((Token *)(tokens->data))->ty;
+	if (ty == TK_INT) {
+		Type *type = NULL;
+		switch (ty) {
+			case TK_INT:
+				type = new_type(INT, NULL);
+		}
+
 		tokens = tokens->next;
+
+		while (consume('*'))
+			type = new_type(PTR, type);
+
 		char *ident_name = ((Token *)(tokens->data))->name;
 		if (map_get(variables, ident_name))
 			error("conflict declaration");
@@ -254,9 +263,6 @@ Node *term() {
 #define new_intptr(i) do { i = malloc(sizeof(int)); *i = 0; } while (0);
 
 void funcdef() {
-	if (((Token *)(tokens->data))->ty != TK_TYPE)
-		return;
-
 	// initialization
 	Func *func = malloc(sizeof(Func));
 	code = func->code = new_vlist();

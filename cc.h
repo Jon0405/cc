@@ -15,7 +15,7 @@ enum {
 
 typedef struct Type {
 	int ty;
-	struct Type *prtof;
+	struct Type *ptrof;
 } Type;
 
 // token type value table
@@ -34,7 +34,7 @@ enum {
 	TK_ELSE,      // else
 	TK_WHILE,     // while
 	TK_FOR,       // for
-	TK_TYPE,
+	TK_INT,
 };
 
 // token structure
@@ -103,6 +103,9 @@ void vlist_push(Vlist *vlist, void *data);
 
 // tokenization
 void tokenize();
+
+// type
+Type *new_type(int ty, Type *ptfof);
 
 // node operations
 Node *new_node(int ty, Node *lhs, Node *rhs);
