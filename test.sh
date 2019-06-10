@@ -48,5 +48,7 @@ try 10 "int main() {int i; int a = 0; for (i = 0; i < 10; i = i + 1) a = a + 1; 
 try 8 "int main() {return fib(6);} int fib(int a) {if (a == 0) return 0; if (a == 1) return 1; return fib(a-1) + fib(a-2);}"
 try 10 "int main() {int a = 0; while (a < 10) a = a + 1; return a;}"
 try 6 "int main() {int a; int b; a = b = 3; return a + b;}"
+try 8 "int main() {int a = 8; int *b = &a; return *b;}"
+try 42 "int main() {int a = 8; int *b = &a; *b = 42; return a;}"
 
 echo OK

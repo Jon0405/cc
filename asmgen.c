@@ -12,14 +12,23 @@ extern int lendcount;
 extern int lelsecount;
 
 void gen_lval(Node *node) {
-	if (node->ty != ND_IDENT)
-		error("should assign to a variable!");
-
-	int var_place = *(int *)map_get(variables, node->name);
-	int offset = (*vcount - var_place + 1) * 8;
-	printf("  mov rax, rbp\n");
-	printf("  sub rax, %d\n", offset);
-	printf("  push rax\n");
+	if (node->ty == ND_INDIR) {
+		gen_lval(node->lhs);
+		printf("  pop rax\n");
+		printf("  mov rax, [rax]\n");
+		printf("  push rax\n");
+		return;
+	}
+	if (node->ty == ND_IDENT) {
+		int var_place = *(int *)map_get(variables, node->name);
+		int offset = (*vcount - var_place + 1) * 8;
+		printf("  mov rax, rbp\n");
+		printf("  sub rax, %d\n", offset);
+		printf("  push rax\n");
+		return;
+	}
+	
+	error("should be a variable or a variable pointer!");
 }
 
 void gen(Node *node) {
@@ -144,6 +153,14 @@ void gen(Node *node) {
 
 	if (node->ty == ND_ADDR) {
 		gen_lval(node->lhs);
+		return;
+	}
+
+	if (node->ty == ND_INDIR) {
+		gen(node->lhs);
+		printf("  pop rax\n");
+		printf("  mov rax, [rax]\n");
+		printf("  push rax\n");
 		return;
 	}
 

@@ -187,6 +187,8 @@ Node *unary() {
 		return new_node('-', new_node_num(0), term());
 	if (consume('&'))
 		return new_node(ND_ADDR, term(), NULL);
+	if (consume('*'))
+		return new_node(ND_INDIR, unary(), NULL);
 	return type();
 }
 

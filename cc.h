@@ -53,7 +53,8 @@ enum {
 	ND_NEQ,
 	ND_LT,
 	ND_LE,
-	ND_ADDR,
+	ND_ADDR,      // address
+	ND_INDIR,     // indirect
 	ND_IDENT,     // indentifier
 	ND_RET,       // return
 	ND_IF,        // if
