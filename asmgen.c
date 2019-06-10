@@ -142,6 +142,11 @@ void gen(Node *node) {
 		return;
 	}
 
+	if (node->ty == ND_ADDR) {
+		gen_lval(node->lhs);
+		return;
+	}
+
 	if (node->ty == ND_IDENT) {
 		gen_lval(node);
 		printf("  pop rax\n");
