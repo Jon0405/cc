@@ -50,5 +50,6 @@ try 10 "int main() {int a = 0; while (a < 10) a = a + 1; return a;}"
 try 6 "int main() {int a; int b; a = b = 3; return a + b;}"
 try 8 "int main() {int a = 8; int *b = &a; return *b;}"
 try 42 "int main() {int a = 8; int *b = &a; *b = 42; return a;}"
+try 42 "int main() {int a = 8; int *b = &a; int **c = &b; **c = 42; return a;}"
 
 echo OK
