@@ -30,10 +30,12 @@ equality   = relational ("==" relational | "!=" relational)*
 relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
-unary      = ("+" | "-")? type
-type       = ("int")? term
+unary      = ("+" | "-" | "&")? term
+           | "*"* unary
+           | type
+type       = ("int")? ("*"*)? term
 term       = num
-           | ident ("(" (expr (",")?)*? ")")? 
+           | ident ("(" (type (",")?)*? ")")?
            | "(" expr ")"
 */
 Node *stmt();
