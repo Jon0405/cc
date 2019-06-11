@@ -2,7 +2,15 @@
 
 #include "cc.h"
 
-// node operations
+// type
+Type *new_type(int ty, Type *ptrof) {
+	Type *type = malloc(sizeof(Type));
+	type->ty = ty;
+	type->ptrof = ptrof;
+	return type; 
+}
+
+// node
 Node *new_node(int ty, Node *lhs, Node *rhs) {
 	Node *node = malloc(sizeof(Node));
 	node->ty = ty;
