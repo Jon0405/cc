@@ -89,7 +89,6 @@ typedef struct {
 	char *name;
 	int *vcount;
 	Vlist *variables;
-	Vlist *types;
 	Vlist *code;
 	Node *nodedef;    // for arguments
 } Func;

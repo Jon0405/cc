@@ -13,7 +13,6 @@ Vlist *tokens; // token list
 int *vcount;      // variable count
 Vlist *code;      // code list
 Vlist *variables; // variable map
-Vlist *types;     // variable type map
 Vlist *functions; // function list
 
 // for assembly code generator
@@ -62,7 +61,6 @@ int main(int argc, char **argv) {
 		code = code->next; // skip list head
 		vcount = func->vcount;
 		variables = func->variables;
-		types = func->types;
 		
 		printf(".global %s\n", func->name);
 		printf("%s:\n", func->name);
@@ -84,7 +82,7 @@ int main(int argc, char **argv) {
 			code = code->next;
 		}
 
-		code = variables = types = NULL; vcount = NULL; // leave from the function
+		code = variables = NULL; vcount = NULL; // leave from the function
 		functions = functions->next;
 	}
 

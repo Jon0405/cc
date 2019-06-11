@@ -5,7 +5,6 @@
 extern Vlist *tokens;
 extern Vlist *code;
 extern Vlist *variables;
-extern Vlist *types;
 extern Vlist *functions;
 extern int *vcount;
 
@@ -214,7 +213,6 @@ Node *type() {
 			int *place = malloc(sizeof(int));
 			*place = ++(*vcount);
 			map_put(variables, ident_name, place);
-			map_put(types, ident_name, type);
 		}
 
 	}
@@ -273,7 +271,6 @@ void funcdef() {
 	new_intptr(func->vcount);
 	vcount = func->vcount;
 	variables = func->variables = new_vlist();
-	types = func->types = new_vlist();
 
 	Node *node = type();
 	if (node->ty != ND_CALL)
@@ -289,7 +286,7 @@ void funcdef() {
 void program() {
 	while (((Token *)(tokens->data))->ty != TK_EOF) {
 		funcdef();
-		if (code == NULL || variables == NULL || types == NULL || vcount == NULL)
+		if (code == NULL || variables == NULL || vcount == NULL)
 			error("not in a function!");
 		vlist_push(code, stmt());
 	}
