@@ -60,6 +60,8 @@ Node *expr() {
 
 Node *stmt() {
 	Node *node = NULL;
+	if (consume(';'))
+		return new_node(ND_NOP, NULL, NULL);
 
 	if (consume(TK_RET)) {
 		node = malloc(sizeof(Node));

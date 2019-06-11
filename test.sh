@@ -36,6 +36,7 @@ tryfunc() {
 }
 
 try 42 "int main() {return 42;}"
+try 42 "int main() {;;;return 42;}"
 try 42 "int main() {if (1) return 42; return 8;}"
 try 8 "int main() {if (0) return 42; return 8;}"
 try 42 "int main() {if (1) return 42; else return 8;}"

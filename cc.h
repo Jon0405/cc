@@ -71,6 +71,7 @@ enum {
 	ND_BLOCK,     // code block
 	ND_CALL,      // function call
 	ND_DEF,       // function definition
+	ND_NOP,
 };
 
 // node structure

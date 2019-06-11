@@ -40,6 +40,9 @@ void gen(Node *node) {
 		return;
 	}
 
+	if (node->ty == ND_NOP)
+		return;
+
 	if (node->ty == ND_IF) {
 		int end_num = lendcount++;
 		gen(node->lhs);
