@@ -181,44 +181,28 @@ Node *mul() {
 	}
 }
 
+Type *curr_ptrof; // trace ptrof
+
 Node *unary() {
 	if (consume('+'))
 		return term();
+
 	if (consume('-'))
 		return new_node('-', new_node_num(0), term());
+
 	if (consume('&'))
 		return new_node(ND_ADDR, term(), NULL);
-	if (consume('*'))
-		return new_node(ND_INDIR, unary(), NULL);
-	return type();
-}
 
-Node *type() {
-	int ty = ((Token *)(tokens->data))->ty;
-	if (ty == TK_INT) {
-		Type *type = NULL;
-		switch (ty) {
-			case TK_INT:
-				type = new_type(INT, NULL);
-		}
-
-		tokens = tokens->next;
-
-		while (consume('*'))
-			type = new_type(PTR, type);
-
-		char *ident_name = ((Token *)(tokens->data))->name;
-		if (map_get(variables, ident_name))
-			error("conflict declaration");
-
-		if (((Token *)(tokens->next->data))->ty != '(') {
-			Variable *var = new_var(++(*vcount), type);
-			map_put(variables, ident_name, var);
-		}
-
+	char *input = ((Token *)(tokens->data))->input;
+	if (consume('*')) {
+		Node *node = new_node(ND_INDIR, unary(), NULL);
+		curr_ptrof = curr_ptrof->ptrof;
+		if (curr_ptrof == NULL)
+			error_at(input, "dereference a value!");
+		return node;
 	}
 
-	return term();
+	return type();
 }
 
 Node *term() {
@@ -252,8 +236,10 @@ Node *term() {
 				consume(',');
 			}
 		} else {
-			if (!map_get(variables, ident_name))
+			Variable *var = map_get(variables, ident_name);
+			if (var == NULL)
 				error("undeclared variable!");
+			curr_ptrof = var->type;
 			node = new_node_ident(ident_name);
 		}
 		return node;
@@ -261,6 +247,34 @@ Node *term() {
 	
 	error_at(((Token *)(tokens->data))->input, "unexpected token");
 	return node; // prevent compiler warning
+}
+
+Node *type() {
+	int ty = ((Token *)(tokens->data))->ty;
+	if (ty == TK_INT) {
+		Type *type = NULL;
+		switch (ty) {
+			case TK_INT:
+				type = new_type(INT, NULL);
+		}
+
+		tokens = tokens->next;
+
+		while (consume('*'))
+			type = new_type(PTR, type);
+
+		char *ident_name = ((Token *)(tokens->data))->name;
+		if (map_get(variables, ident_name))
+			error("conflict declaration");
+
+		if (((Token *)(tokens->next->data))->ty != '(') {
+			Variable *var = new_var(++(*vcount), type);
+			map_put(variables, ident_name, var);
+		}
+
+	}
+
+	return term();
 }
 
 #define new_intptr(i) do { i = malloc(sizeof(int)); *i = 0; } while (0);
