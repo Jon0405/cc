@@ -2,6 +2,14 @@
 
 #include "cc.h"
 
+// var
+Variable *new_var(int place, Type *type) {
+	Variable *var = malloc(sizeof(Variable));
+	var->place = place;
+	var->type = type;
+	return var;
+}
+
 // type
 Type *new_type(int ty, Type *ptrof) {
 	Type *type = malloc(sizeof(Type));

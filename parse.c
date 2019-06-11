@@ -210,9 +210,8 @@ Node *type() {
 			error("conflict declaration");
 
 		if (((Token *)(tokens->next->data))->ty != '(') {
-			int *place = malloc(sizeof(int));
-			*place = ++(*vcount);
-			map_put(variables, ident_name, place);
+			Variable *var = new_var(++(*vcount), type);
+			map_put(variables, ident_name, var);
 		}
 
 	}

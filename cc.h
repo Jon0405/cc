@@ -18,6 +18,11 @@ typedef struct Type {
 	struct Type *ptrof;
 } Type;
 
+typedef struct {
+	int place;
+	Type *type;
+} Variable;
+
 // token type value table
 enum {
 	TK_NUM = 256, // integer
@@ -105,10 +110,13 @@ void vlist_push(Vlist *vlist, void *data);
 // tokenization
 void tokenize();
 
+//variable
+Variable *new_var(int place, Type *type);
+
 // type
 Type *new_type(int ty, Type *ptfof);
 
-// node operations
+// node
 Node *new_node(int ty, Node *lhs, Node *rhs);
 Node *new_node_num(int val);
 Node *new_node_ident(char *name);

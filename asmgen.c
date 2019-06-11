@@ -19,8 +19,8 @@ void gen_lval(Node *node) {
 		return;
 	}
 	if (node->ty == ND_IDENT) {
-		int var_place = *(int *)map_get(variables, node->name);
-		int offset = (*vcount - var_place + 1) * 8;
+		Variable *var = (Variable *)map_get(variables, node->name);
+		int offset = (*vcount - var->place + 1) * 8;
 		printf("  mov rax, rbp\n");
 		printf("  sub rax, %d\n", offset);
 		printf("  push rax\n");
