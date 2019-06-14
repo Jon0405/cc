@@ -54,7 +54,9 @@ try 6 "int main() {int a; int b; a = b = 3; return a + b;}"
 try 8 "int main() {int a = 8; int *b = &a; return *b;}"
 try 42 "int main() {int a = 8; int *b = &a; *b = 42; return a;}"
 try 42 "int main() {int a = 8; int *b = &a; int **c = &b; **c = 42; return a;}"
+try 42 "int main() {int a = 8; int *b = &a; int **c = &b; **c = 42; return **c;}"
 func="ptr"; tryfunc 3 "int main() {int *a = arr(10); int *b = a + 4; return *b;}"
 func="ptr"; tryfunc 5 "int main() {int *a = arr(10); int *b = a + 5; return *b;}"
+func="ptrptr"; tryfunc 5 "int main() {int **a = ptrarr(10); int **b = a + 5; return **b;}"
 
 echo OK
