@@ -157,14 +157,33 @@ Node *relational() {
 	}
 }
 
+Node *ptr(Node *node) {
+	Node *ptrnode = mul();
+
+	if (node->ty == ND_IDENT) {
+		Variable *var = map_get(variables, node->name);
+
+		if (var->type->ty == PTR) {
+			Type *next = var->type->ptrof;
+			if (next->ty != PTR)
+				ptrnode = (new_node('*', ptrnode, new_node_num(4)));
+			else
+				ptrnode = (new_node('*', ptrnode, new_node_num(8)));
+		}
+	}
+
+	return ptrnode;
+}
+
+
 Node *add() {
 	Node *node = mul();
 
 	for (;;) {
 		if (consume('+'))
-			node = new_node('+', node, mul());
+			node = new_node('+', node, ptr(node));
 		else if (consume('-'))
-			node = new_node('-', node, mul());
+			node = new_node('-', node, ptr(node));
 		else
 			return node;
 	}
