@@ -10,24 +10,37 @@ extern int lbegincount;
 extern int lendcount;
 extern int lelsecount;
 
-void gen_lval(Node *node) {
+Type *gen_lval(Node *node) {
 	if (node->ty == ND_INDIR) {
-		gen_lval(node->lhs);
+		Type *type = gen_lval(node->lhs);
+		type = type->ptrof;
 		printf("  pop rax\n");
 		printf("  mov rax, [rax]\n");
 		printf("  push rax\n");
-		return;
+		return type;
 	}
 	if (node->ty == ND_IDENT) {
 		Variable *var = (Variable *)map_get(variables, node->name);
-		int offset = (*vcount - var->place + 1) * 8;
+		int size = 0;
+		switch (var->type->ty) {
+			case INT:
+				size = 1;
+				break;
+			case LONG:
+				size = 2;
+				break;
+			case PTR:
+				size = 2;
+		}
+		int offset = (*vcount - var->place + size) * 4;
 		printf("  mov rax, rbp\n");
 		printf("  sub rax, %d\n", offset);
 		printf("  push rax\n");
-		return;
+		return var->type;
 	}
 	
 	error("should be a variable or a variable pointer!");
+	return NULL;
 }
 
 void gen(Node *node) {
@@ -138,11 +151,14 @@ void gen(Node *node) {
 		Vlist *curr = node->argv->next; // skip list head
 		while (curr != NULL && regcount < 6) {
 			Node *nodearg = (Node *)curr->data;
-			gen_lval(nodearg);
+			Type *type = gen_lval(nodearg);
 			printf("  push %s\n", reg_names[regcount++]);
 			printf("  pop rdi\n");
 			printf("  pop rax\n");
-			printf("  mov [rax], rdi\n");
+			if (type->ty == INT)
+				printf("  mov DWORD PTR [rax], edi\n");
+			else	
+				printf("  mov [rax], rdi\n");
 			curr = curr->next;
 		}
 		return;
@@ -167,20 +183,26 @@ void gen(Node *node) {
 	}
 
 	if (node->ty == ND_IDENT) {
-		gen_lval(node);
+		Type *type = gen_lval(node);
 		printf("  pop rax\n");
-		printf("  mov rax, [rax]\n");
+		if (type->ty == INT)
+			printf("  mov eax, DWORD PTR [rax]\n");
+		else
+			printf("  mov rax, [rax]\n");
 		printf("  push rax\n");
 		return;
 	}
 
 	if (node->ty == '=') {
-		gen_lval(node->lhs);
+		Type *type = gen_lval(node->lhs);
 		gen(node->rhs);
 
 		printf("  pop rdi\n");
 		printf("  pop rax\n");
-		printf("  mov [rax], rdi\n");
+		if (type->ty == INT)
+			printf("  mov DWORD PTR [rax], edi\n");
+		else	
+			printf("  mov [rax], rdi\n");
 		printf("  push rdi\n");
 		return;
 	}

@@ -292,7 +292,17 @@ Node *type() {
 			error("conflict declaration");
 
 		if (((Token *)(tokens->next->data))->ty != '(') {
-			Variable *var = new_var(++(*vcount), type);
+			switch (type->ty) {
+				case INT:
+					*vcount += 1;
+					break;
+				case LONG:
+					*vcount += 2;
+					break;
+				case PTR:
+					*vcount += 2;
+			}
+			Variable *var = new_var(*vcount, type);
 			map_put(variables, ident_name, var);
 		}
 
