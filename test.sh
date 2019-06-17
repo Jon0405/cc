@@ -58,5 +58,6 @@ try 42 "int main() {int a = 8; int *b = &a; int **c = &b; **c = 42; return **c;}
 func="ptr"; tryfunc 3 "int main() {int *a = arr(10); int *b = a + 4; return *b;}"
 func="ptr"; tryfunc 5 "int main() {int *a = arr(10); int *b = a + 5; return *b;}"
 func="ptrptr"; tryfunc 5 "int main() {int **a = ptrarr(10); int **b = a + 5; return **b;}"
+func="ptrlong"; tryfunc 5 "int main() {long *a = arr(10); long *b = a + 5; return *b;}"
 
 echo OK
