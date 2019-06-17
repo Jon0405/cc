@@ -131,7 +131,7 @@ void tokenize() {
 			continue;
 		}
 
-		if (strchr("+-*/();{},&", *p)) {
+		if (strchr("+-*/();{},&[]", *p)) {
 			Token *token = malloc(sizeof(Token));
 			token->ty = *p;
 			token->input = p;
