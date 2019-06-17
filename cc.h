@@ -9,7 +9,8 @@ typedef struct Vlist{
 
 // type
 enum {
-	INT, // int
+	INT,
+	LONG,
 	PTR, // pointer
 };
 
@@ -39,7 +40,9 @@ enum {
 	TK_ELSE,      // else
 	TK_WHILE,     // while
 	TK_FOR,       // for
+	TK_SIZEOF,
 	TK_INT,
+	TK_LONG,
 };
 
 // token structure

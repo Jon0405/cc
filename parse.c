@@ -165,7 +165,7 @@ Node *ptr(Node *node) {
 
 		if (var->type->ty == PTR) {
 			Type *next = var->type->ptrof;
-			if (next->ty != PTR)
+			if (next->ty == INT)
 				ptrnode = (new_node('*', ptrnode, new_node_num(4)));
 			else
 				ptrnode = (new_node('*', ptrnode, new_node_num(8)));
@@ -272,11 +272,14 @@ Node *term() {
 
 Node *type() {
 	int ty = ((Token *)(tokens->data))->ty;
-	if (ty == TK_INT) {
+	if (ty == TK_INT || ty == TK_LONG) {
 		Type *type = NULL;
 		switch (ty) {
 			case TK_INT:
 				type = new_type(INT, NULL);
+				break;
+			case TK_LONG:
+				type = new_type(LONG, NULL);
 		}
 
 		tokens = tokens->next;
