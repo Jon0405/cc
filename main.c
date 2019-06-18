@@ -10,10 +10,11 @@ char *user_input; // raw input data
 Vlist *tokens; // token list
 
 // for parser
-int *vcount;      // variable count
-Vlist *code;      // code list
-Vlist *variables; // variable map
-Vlist *functions; // function list
+int *vcount;        // variable count
+Vlist *code;        // code list
+Vlist *variables;   // variable map
+Vlist *functions;   // function list
+Vlist *return_type; // functions return type
 
 // for assembly code generator
 int lbegincount; // begin label count
@@ -42,6 +43,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	tokens = tokens->next; // skip head
 	functions = new_vlist();
+	return_type = new_vlist();
 	code = variables = NULL;
 	program();
 	if (code->next == NULL) // empty vlist

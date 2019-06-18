@@ -6,6 +6,7 @@ extern Vlist *tokens;
 extern Vlist *code;
 extern Vlist *variables;
 extern Vlist *functions;
+extern Vlist *return_type;
 extern int *vcount;
 
 int consume(int ty) {
@@ -341,6 +342,8 @@ Node *type() {
 			}
 			Variable *var = new_var(*vcount, type);
 			map_put(variables, ident_name, var);
+		} else {
+			map_put(return_type, ident_name, type);
 		}
 
 	}
