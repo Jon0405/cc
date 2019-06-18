@@ -59,5 +59,13 @@ func="ptr"; tryfunc 3 "int main() {int *a = arr(10); int *b = a + 4; return *b;}
 func="ptrptr"; tryfunc 5 "int main() {int **a = ptrarr(10); int **b = a + 5; return **b;}"
 func="ptrlong"; tryfunc 5 "int main() {long *a = arr(10); long *b = a + 5; return *b;}"
 func="ptr"; tryfunc 8 "int main() {int *a = arr(10); int *b = a + 5; *b = 0; b = b + 1; return *b;}"
+try 4 "int main() {int a; return sizeof(a);}"
+try 8 "int main() {long a; return sizeof(a);}"
+try 8 "int main() {int *a; return sizeof(a + 3);}"
+try 8 "int main() {int *a; return sizeof(a);}"
+try 4 "int main() {int **a; return sizeof(**a);}"
+try 8 "int main() {int **a; return sizeof(*a);}"
+try 8 "int main() {int a; return sizeof(&a);}"
+try 4 "int main() {int a; return sizeof(sizeof(a));}"
 
 echo OK

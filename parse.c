@@ -211,8 +211,12 @@ Node *unary() {
 	if (consume('-'))
 		return new_node('-', new_node_num(0), term());
 
-	if (consume('&'))
-		return new_node(ND_ADDR, term(), NULL);
+	if (consume('&')) {
+		Node *node = term();
+		if (node->ty != ND_IDENT && node->ty != ND_INDIR)
+			error("get address from a non-variable value!");
+		return new_node(ND_ADDR, node, NULL);
+	}
 
 	char *input = ((Token *)(tokens->data))->input;
 	if (consume('*')) {
@@ -221,6 +225,38 @@ Node *unary() {
 		if (curr_ptrof == NULL)
 			error_at(input, "dereference a value!");
 		return node;
+	}
+
+	if (consume(TK_SIZEOF)) {
+		Node *node = unary();
+		while (node->ty == '+' || node->ty == '-' || node->ty == '*' || node->ty == '/')
+			node = node->lhs;
+
+		if (node->ty == ND_NUM)
+			return new_node_num(4);
+
+		if (node->ty == ND_ADDR)
+			return new_node_num(8);
+
+
+		int deref = 0;
+		for (; node->ty == ND_INDIR; node = node->lhs)
+			deref++;
+		if (node->ty == ND_IDENT) {
+			Variable *var = map_get(variables, node->name);
+			Type *type = var->type;
+			for (; deref > 0; deref--)
+				type = type->ptrof;
+			switch (type->ty) {
+				case INT:
+					return new_node_num(4);
+				case LONG:
+					return new_node_num(8);
+				case PTR:
+					return new_node_num(8);
+			}
+		}
+		error("sizeof unknown type!");
 	}
 
 	return type();
