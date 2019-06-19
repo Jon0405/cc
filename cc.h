@@ -17,6 +17,7 @@ enum {
 typedef struct Type {
 	int ty;
 	struct Type *ptrof;
+	size_t array_size;
 } Type;
 
 typedef struct {
