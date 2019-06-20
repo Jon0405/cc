@@ -1,3 +1,28 @@
+/* parsing tokens
+stmt       = "return" expr ";"
+           | expr ";"
+           | "{" stmt* "}"
+           | "if" "(" expr ")" stmt ("else" stmt)?
+           | "while" "(" expr ")" stmt
+           | "for" "(" expr? ";" expr? ";" expr? ")" stmt
+expr       = assign
+assign     = equality ("=" assign)?
+equality   = relational ("==" relational | "!=" relational)*
+relational = add ("<" add | "<=" add | ">" add | ">=" add)*
+add        = mul ("+" mul | "-" mul)*
+mul        = unary ("*" unary | "/" unary)*
+unary      = "sizeof" unary
+           | ("+" | "-" | "&")? term
+           | "*"* unary
+           | declare
+declare    = ("int" | "long") ("*"*)? term
+term       = num
+           | ident ("(" (expr (",")?)*? ")")?
+           | "(" expr ")"
+funcdef    = ("int" | "long") ("*"?)? ident "(" (declare*)? ")"  
+program    = funcdef stmt
+*/
+
 #include <stdlib.h>
 
 #include "cc.h"
@@ -36,29 +61,6 @@ Type *consume_type() {
 	return type;
 }
 
-/* parsing tokens
-stmt       = "return" expr ";"
-           | expr ";"
-           | "{" stmt* "}"
-           | "if" "(" expr ")" stmt ("else" stmt)?
-           | "while" "(" expr ")" stmt
-           | "for" "(" expr? ";" expr? ";" expr? ")" stmt
-expr       = assign
-assign     = equality ("=" assign)?
-equality   = relational ("==" relational | "!=" relational)*
-relational = add ("<" add | "<=" add | ">" add | ">=" add)*
-add        = mul ("+" mul | "-" mul)*
-mul        = unary ("*" unary | "/" unary)*
-unary      = "sizeof" unary
-           | ("+" | "-" | "&")? term
-           | "*"* unary
-           | declare
-declare    = ("int" | "long")? ("*"*)? term
-term       = num
-           | ident ("(" (expr (",")?)*? ")")?
-           | "(" expr ")"
-program    = ("int" | "long") ("*"?)? term
-*/
 Node *stmt();
 Node *expr();
 Node *assign();
@@ -357,7 +359,7 @@ Node *funcdef(Type *type) {
 
 	if (!consume(')')) {
 		do {
-			Node *arg = expr();
+			Node *arg = declare();
 			vlist_push(node->argv, arg);
 		} while (consume(','));
 
