@@ -33,6 +33,7 @@ extern Vlist *functions;
 extern Vlist *return_type;
 extern int *vcount;
 
+// consume tokens
 int consume(int ty) {
 	if (((Token *)(tokens->data))->ty != ty)
 		return 0;
@@ -55,12 +56,13 @@ Type *consume_type() {
 
 	tokens = tokens->next;
 
-	while (consume('*'))
+	while (consume('*')) // dereference
 		type = new_type(PTR, type);
 
 	return type;
 }
 
+// parse nodes
 Node *stmt();
 Node *expr();
 Node *assign();
@@ -71,6 +73,7 @@ Node *mul();
 Node *unary();
 Node *declare();
 Node *term();
+Node *funcdef();
 
 Node *assign() {
 	Node *node = equality();
