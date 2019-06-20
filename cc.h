@@ -7,6 +7,12 @@ typedef struct Vlist{
 	struct Vlist *next;
 } Vlist;
 
+// map structure
+typedef struct {
+	char *key;
+	void *val;
+} Map;
+
 // type
 enum {
 	INT,
@@ -89,12 +95,7 @@ typedef struct Node {
 	Vlist *argv;      // only use this when ty == ND_CALL or ty == ND_DEF
 } Node;
 
-// map structure
-typedef struct {
-	char *key;
-	void *val;
-} Map;
-
+// function structure
 typedef struct {
 	char *name;
 	int *vcount;
@@ -103,19 +104,24 @@ typedef struct {
 	Node *nodedef;    // for arguments
 } Func;
 
-// export functions
+// exported functions
+
 // error
 void error(char *fmt, ...);
 void error_at(char *loc, char *msg);
 
-// vector operations
+// vlist
 Vlist *new_vlist();
 void vlist_push(Vlist *vlist, void *data);
 
-// tokenization
+// map
+void map_put(Vlist *map, char *key, void *val);
+void *map_get(Vlist *map, char *key);
+
+// token
 void tokenize();
 
-//variable
+// variable
 Variable *new_var(int place, Type *type);
 
 // type
@@ -129,7 +135,7 @@ Node *new_node_call(char *name);
 Node *new_node_funcdef(char *name);
 Node *new_node_block(Vlist *stmts);
 
-// parsing
+// parse
 void program();
 
 // generate assembly code
@@ -137,9 +143,5 @@ void gen(Node *node);
 
 // test functions
 int runtest();
-
-// map
-void map_put(Vlist *map, char *key, void *val);
-void *map_get(Vlist *map, char *key);
 
 #endif
