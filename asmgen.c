@@ -13,18 +13,18 @@ extern int lendcount;
 extern int lelsecount;
 
 Type *gen_lval(Node *node) {
+	Type *type = NULL;
 	if (node->ty == ND_INDIR) {
-		Type *type = gen_lval(node->lhs);
+		type = gen_lval(node->lhs);
 		type = type->ptrof;
 		printf("  pop rax\n");
 		printf("  mov rax, [rax]\n");
 		printf("  push rax\n");
-		return type;
-	}
-	if (node->ty == ND_IDENT) {
+	} else if (node->ty == ND_IDENT) {
 		Variable *var = (Variable *)map_get(variables, node->name);
+		type = var->type;
 		int size = 0;
-		switch (var->type->ty) {
+		switch (type->ty) {
 			case INT:
 				size = 1;
 				break;
@@ -38,11 +38,11 @@ Type *gen_lval(Node *node) {
 		printf("  mov rax, rbp\n");
 		printf("  sub rax, %d\n", offset);
 		printf("  push rax\n");
-		return var->type;
+	} else {
+		error("should be a variable or a variable pointer!");
 	}
-	
-	error("should be a variable or a variable pointer!");
-	return NULL;
+
+	return type;
 }
 
 void gen(Node *node) {
