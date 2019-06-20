@@ -125,11 +125,13 @@ void gen(Node *node) {
 
 	if (node->ty == ND_CALL) {
 		int regcount = 0;
-		for (Vlist *curr = node->argv->next; curr != NULL && regcount < ARGC_MAX; curr = curr->next) {
+		Vlist *curr = node->argv->next; // skip list head
+		for (; curr != NULL && regcount < ARGC_MAX; curr = curr->next, regcount++) {
 			Node *nodearg = (Node *)curr->data;
 			gen(nodearg);
-			printf("  pop %s\n", reg_names[regcount++]);
+			printf("  pop %s\n", reg_names[regcount]);
 		}
+
 		printf("  push rbp\n");
 		printf("  mov rbp, rsp\n");
 		printf("  and rsp, -0x10\n");
@@ -142,10 +144,11 @@ void gen(Node *node) {
 
 	if (node->ty == ND_DEF) {
 		int regcount = 0;
-		for (Vlist *curr = node->argv->next; curr != NULL && regcount < ARGC_MAX; curr = curr->next) {
+		Vlist *curr = node->argv->next; // skip list head
+		for (; curr != NULL && regcount < ARGC_MAX; curr = curr->next, regcount++) {
 			Node *nodearg = (Node *)curr->data;
 			Type *type = gen_lval(nodearg);
-			printf("  push %s\n", reg_names[regcount++]);
+			printf("  push %s\n", reg_names[regcount]);
 			printf("  pop rdi\n");
 			printf("  pop rax\n");
 			if (type->ty == INT)
