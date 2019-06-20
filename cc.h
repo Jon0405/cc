@@ -99,7 +99,7 @@ typedef struct {
 	char *name;
 	int *vcount;
 	Vlist *variables;
-	Vlist *code;
+	Node *code;
 	Node *nodedef;    // for arguments
 } Func;
 
@@ -126,6 +126,7 @@ Node *new_node(int ty, Node *lhs, Node *rhs);
 Node *new_node_num(int val);
 Node *new_node_ident(char *name);
 Node *new_node_call(char *name);
+Node *new_node_funcdef(char *name);
 Node *new_node_block(Vlist *stmts);
 
 // parsing

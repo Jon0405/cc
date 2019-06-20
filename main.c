@@ -11,7 +11,6 @@ Vlist *tokens; // token list
 
 // for parser
 int *vcount;        // variable count
-Vlist *code;        // code list
 Vlist *variables;   // variable map
 Vlist *functions;   // function list
 Vlist *return_type; // functions return type
@@ -44,10 +43,8 @@ int main(int argc, char **argv) {
 	tokens = tokens->next; // skip head
 	functions = new_vlist();
 	return_type = new_vlist();
-	code = variables = NULL;
+	variables = NULL;
 	program();
-	if (code->next == NULL) // empty vlist
-		exit(1);
 
 	// header
 	printf(".intel_syntax noprefix\n");
@@ -59,8 +56,6 @@ int main(int argc, char **argv) {
 
 		// initialization
 		Func *func = (Func *)functions->data;
-		code = func->code;
-		code = code->next; // skip list head
 		vcount = func->vcount;
 		variables = func->variables;
 		
@@ -76,15 +71,9 @@ int main(int argc, char **argv) {
 		gen(func->nodedef);
 
 		// generate assembly code
-		for (;;) {
-			if (code == NULL)
-				break;
+		gen(func->code);
 
-			gen((Node *)(code->data));
-			code = code->next;
-		}
-
-		code = variables = NULL; vcount = NULL; // leave from the function
+		variables = NULL; vcount = NULL; // leave from the function
 		functions = functions->next;
 	}
 

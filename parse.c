@@ -3,7 +3,6 @@
 #include "cc.h"
 
 extern Vlist *tokens;
-extern Vlist *code;
 extern Vlist *variables;
 extern Vlist *functions;
 extern Vlist *return_type;
@@ -14,6 +13,27 @@ int consume(int ty) {
 		return 0;
 	tokens = tokens->next;
 	return 1;
+}
+
+Type *consume_type() {
+	Type *type = NULL;
+	switch (((Token *)(tokens->data))->ty) {
+		case TK_INT:
+			type = new_type(INT, NULL);
+			break;
+		case TK_LONG:
+			type = new_type(LONG, NULL);
+	}
+
+	if (!type)
+		return type; // not a definition
+
+	tokens = tokens->next;
+
+	while (consume('*'))
+		type = new_type(PTR, type);
+
+	return type;
 }
 
 /* parsing tokens
@@ -32,8 +52,8 @@ mul        = unary ("*" unary | "/" unary)*
 unary      = "sizeof" unary
            | ("+" | "-" | "&")? term
            | "*"* unary
-           | type
-type       = ("int")? ("*"*)? term
+           | declare
+declare    = ("int" | "long")? ("*"*)? term
 term       = num
            | ident ("(" (expr (",")?)*? ")")?
            | "(" expr ")"
@@ -47,7 +67,7 @@ Node *relational();
 Node *add();
 Node *mul();
 Node *unary();
-Node *type();
+Node *declare();
 Node *term();
 
 Node *assign() {
@@ -260,47 +280,27 @@ Node *unary() {
 		error("sizeof unknown type!");
 	}
 
-	return type();
+	return declare();
 }
 
-Node *type() {
-	int ty = ((Token *)(tokens->data))->ty;
-	if (ty == TK_INT || ty == TK_LONG) {
-		Type *type = NULL;
-		switch (ty) {
-			case TK_INT:
-				type = new_type(INT, NULL);
-				break;
-			case TK_LONG:
-				type = new_type(LONG, NULL);
-		}
-
-		tokens = tokens->next;
-
-		while (consume('*'))
-			type = new_type(PTR, type);
-
+Node *declare() {
+	Type *type = consume_type();
+	if (type != NULL) {
+		if (((Token *)(tokens->data))->ty != TK_IDENT)
+			error_at(((Token *)(tokens->data))->input, "should be an indentifier!");
 		char *ident_name = ((Token *)(tokens->data))->name;
-		if (map_get(variables, ident_name))
-			error("conflict declaration");
-
-		if (((Token *)(tokens->next->data))->ty != '(') {
-			switch (type->ty) {
-				case INT:
-					*vcount += 1;
-					break;
-				case LONG:
-					*vcount += 2;
-					break;
-				case PTR:
-					*vcount += 2;
-			}
-			Variable *var = new_var(*vcount, type);
-			map_put(variables, ident_name, var);
-		} else {
-			map_put(return_type, ident_name, type);
+		switch (type->ty) {
+			case INT:
+				*vcount += 1;
+				break;
+			case LONG:
+				*vcount += 2;
+				break;
+			case PTR:
+				*vcount += 2;
 		}
-
+		Variable *var = new_var(*vcount, type);
+		map_put(variables, ident_name, var);
 	}
 
 	return term();
@@ -342,26 +342,44 @@ Node *term() {
 	return node;
 }
 
+Node *funcdef(Type *type) {
+	if (((Token *)(tokens->data))->ty != TK_IDENT)
+		error_at(((Token *)(tokens->data))->input, "should be a function name!");
+	char *ident_name = ((Token *)(tokens->data))->name;
+	tokens = tokens->next;
+
+	Node *node = new_node_funcdef(ident_name);
+	if (!consume('('))
+		error_at(((Token *)(tokens->data))->input, "should be '('!");
+
+	while (!consume(')')) {
+		Node *arg = expr();
+		vlist_push(node->argv, arg);
+		consume(',');
+	}
+	map_put(return_type, ident_name, type);
+
+	return node;
+}
+
 #define new_intptr(i) do { i = malloc(sizeof(int)); *i = 0; } while (0);
 
 void program() {
 	while (((Token *)(tokens->data))->ty != TK_EOF) {
 		Func *func = malloc(sizeof(Func));
-		code = func->code = new_vlist();
 		new_intptr(func->vcount);
 		vcount = func->vcount;
 		variables = func->variables = new_vlist();
 
-		Node *node = type();
-		if (node->ty != ND_CALL)
+		Type *type = consume_type();
+		if (!type)
 			error("not a function definition!");
-
-		node->ty = ND_DEF; // change node type
+		Node *node = funcdef(type);
 		func->name = node->name;
 		func->nodedef = node;
 
 		vlist_push(functions, func); // no gloabl variable available now
 
-		vlist_push(code, stmt());
+		func->code = stmt();
 	}
 }

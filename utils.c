@@ -48,6 +48,13 @@ Node *new_node_call(char *name) {
 	return node;
 }
 
+Node *new_node_funcdef(char *name) {
+	Node *node = malloc(sizeof(Node));
+	node->ty = ND_DEF;
+	node->name = name;
+	node->argv = new_vlist();
+	return node;
+}
 Node *new_node_block(Vlist *stmts) {
 	Node *node = malloc(sizeof(Node));
 	node->ty = ND_BLOCK;
