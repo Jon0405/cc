@@ -2,7 +2,9 @@
 
 #include "cc.h"
 
-char *reg_names[6] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+#define ARGC_MAX 6
+
+char *reg_names[ARGC_MAX] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 extern Vlist *variables;
 extern int *vcount;
@@ -114,27 +116,19 @@ void gen(Node *node) {
 	}
 
 	if (node->ty == ND_BLOCK) {
-		Vlist *curr = node->stmts;
-		if (curr->next == NULL)
-			error("empty statement!");
-		curr = curr->next; // skip list head
-		for (;;) {
+		if (node->stmts->next == NULL)
+			error("empty block!");
+		for (Vlist *curr = node->stmts->next; curr != NULL; curr = curr->next)
 			gen((Node *)curr->data);
-			curr = curr->next;
-			if (curr == NULL)
-				break;
-		}
 		return;
 	}
 
 	if (node->ty == ND_CALL) {
 		int regcount = 0;
-		Vlist *curr = node->argv->next; // skip list head
-		while (curr != NULL && regcount < 6) {
+		for (Vlist *curr = node->argv->next; curr != NULL && regcount < ARGC_MAX; curr = curr->next) {
 			Node *nodearg = (Node *)curr->data;
 			gen(nodearg);
 			printf("  pop %s\n", reg_names[regcount++]);
-			curr = curr->next;
 		}
 		printf("  push rbp\n");
 		printf("  mov rbp, rsp\n");
@@ -148,8 +142,7 @@ void gen(Node *node) {
 
 	if (node->ty == ND_DEF) {
 		int regcount = 0;
-		Vlist *curr = node->argv->next; // skip list head
-		while (curr != NULL && regcount < 6) {
+		for (Vlist *curr = node->argv->next; curr != NULL && regcount < ARGC_MAX; curr = curr->next) {
 			Node *nodearg = (Node *)curr->data;
 			Type *type = gen_lval(nodearg);
 			printf("  push %s\n", reg_names[regcount++]);
@@ -159,7 +152,6 @@ void gen(Node *node) {
 				printf("  mov DWORD PTR [rax], edi\n");
 			else	
 				printf("  mov [rax], rdi\n");
-			curr = curr->next;
 		}
 		return;
 	}
