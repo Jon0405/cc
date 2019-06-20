@@ -11,7 +11,7 @@ typedef struct Vlist{
 enum {
 	INT,
 	LONG,
-	PTR, // pointer
+	PTR,
 };
 
 typedef struct Type {

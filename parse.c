@@ -17,8 +17,6 @@ int consume(int ty) {
 }
 
 /* parsing tokens
-program    = funcdef stmt
-funcdef    = type 
 stmt       = "return" expr ";"
            | expr ";"
            | "{" stmt* "}"
@@ -37,8 +35,9 @@ unary      = "sizeof" unary
            | type
 type       = ("int")? ("*"*)? term
 term       = num
-           | ident ("(" (type (",")?)*? ")")?
+           | ident ("(" (expr (",")?)*? ")")?
            | "(" expr ")"
+program    = ("int" | "long") ("*"?)? term
 */
 Node *stmt();
 Node *expr();
@@ -264,50 +263,6 @@ Node *unary() {
 	return type();
 }
 
-Node *term() {
-	Node *node = NULL;
-
-	// if token is '(', it should be "'(' expr ')'"
-	if (consume('(')) {
-		node = expr();
-		if (!consume(')'))
-			error_at(((Token *)(tokens->data))->input, "should be ')'!");
-		return node;
-	}
-
-	// otherwise, it should be a value or identifier
-	if (((Token *)(tokens->data))->ty == TK_NUM) {
-		node = new_node_num(((Token *)(tokens->data))->val);
-		tokens = tokens->next;
-		return node;
-	}
-
-	if (((Token *)(tokens->data))->ty == TK_IDENT) {
-		char *ident_name = ((Token *)(tokens->data))->name;
-		tokens = tokens->next;
-
-		if (consume('(')) {
-			node = new_node_call(ident_name);
-			node->argv = new_vlist();
-			while (!consume(')')) {
-				Node *arg = expr();
-				vlist_push(node->argv, arg);
-				consume(',');
-			}
-		} else {
-			Variable *var = map_get(variables, ident_name);
-			if (var == NULL)
-				error("undeclared variable!");
-			curr_ptrof = var->type;
-			node = new_node_ident(ident_name);
-		}
-		return node;
-	}
-	
-	error_at(((Token *)(tokens->data))->input, "unexpected token");
-	return node; // prevent compiler warning
-}
-
 Node *type() {
 	int ty = ((Token *)(tokens->data))->ty;
 	if (ty == TK_INT || ty == TK_LONG) {
@@ -351,32 +306,62 @@ Node *type() {
 	return term();
 }
 
-#define new_intptr(i) do { i = malloc(sizeof(int)); *i = 0; } while (0);
+Node *term() {
+	Node *node = NULL;
 
-void funcdef() {
-	// initialization
-	Func *func = malloc(sizeof(Func));
-	code = func->code = new_vlist();
-	new_intptr(func->vcount);
-	vcount = func->vcount;
-	variables = func->variables = new_vlist();
+	if (consume('(')) {
+		node = expr();
+		if (!consume(')'))
+			error_at(((Token *)(tokens->data))->input, "should be ')'!");
+	} else if (((Token *)(tokens->data))->ty == TK_NUM) {
+		node = new_node_num(((Token *)(tokens->data))->val);
+		tokens = tokens->next;
+	} else if (((Token *)(tokens->data))->ty == TK_IDENT) {
+		char *ident_name = ((Token *)(tokens->data))->name;
+		tokens = tokens->next;
 
-	Node *node = type();
-	if (node->ty != ND_CALL)
-		error("not a function definition!");
+		if (consume('(')) {
+			node = new_node_call(ident_name);
+			node->argv = new_vlist();
+			while (!consume(')')) {
+				Node *arg = expr();
+				vlist_push(node->argv, arg);
+				consume(',');
+			}
+		} else {
+			Variable *var = map_get(variables, ident_name);
+			if (var == NULL)
+				error("undeclared variable!");
+			curr_ptrof = var->type;
+			node = new_node_ident(ident_name);
+		}
+	} else {
+		error_at(((Token *)(tokens->data))->input, "unexpected token");
+	}
 
-	node->ty = ND_DEF; // change node type
-	func->name = node->name;
-	func->nodedef = node;
-
-	vlist_push(functions, func);
+	return node;
 }
+
+#define new_intptr(i) do { i = malloc(sizeof(int)); *i = 0; } while (0);
 
 void program() {
 	while (((Token *)(tokens->data))->ty != TK_EOF) {
-		funcdef();
-		if (code == NULL || variables == NULL || vcount == NULL)
-			error("not in a function!");
+		Func *func = malloc(sizeof(Func));
+		code = func->code = new_vlist();
+		new_intptr(func->vcount);
+		vcount = func->vcount;
+		variables = func->variables = new_vlist();
+
+		Node *node = type();
+		if (node->ty != ND_CALL)
+			error("not a function definition!");
+
+		node->ty = ND_DEF; // change node type
+		func->name = node->name;
+		func->nodedef = node;
+
+		vlist_push(functions, func); // no gloabl variable available now
+
 		vlist_push(code, stmt());
 	}
 }
