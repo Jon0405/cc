@@ -287,7 +287,7 @@ Node *unary() {
 
 Node *declare() {
 	Type *type = consume_type();
-	if (type != NULL) {
+	if (type != NULL) { // is a declaration
 		if (((Token *)(tokens->data))->ty != TK_IDENT)
 			error_at(((Token *)(tokens->data))->input, "should be an indentifier!");
 		char *ident_name = ((Token *)(tokens->data))->name;
@@ -347,9 +347,14 @@ Node *term() {
 	return node;
 }
 
-Node *funcdef(Type *type) {
+Node *funcdef() {
+	Type *type = consume_type();
+	if (!type)
+		error_at(((Token *)(tokens->data))->input, "should be a function return type!");
+
 	if (((Token *)(tokens->data))->ty != TK_IDENT)
 		error_at(((Token *)(tokens->data))->input, "should be a function name!");
+
 	char *ident_name = ((Token *)(tokens->data))->name;
 	tokens = tokens->next;
 
@@ -380,10 +385,7 @@ void program() {
 		vcount = func->vcount;
 		variables = func->variables = new_vlist();
 
-		Type *type = consume_type();
-		if (!type)
-			error("not a function definition!");
-		Node *node = funcdef(type);
+		Node *node = funcdef();
 		func->name = node->name;
 		func->nodedef = node;
 		func->code = stmt();
