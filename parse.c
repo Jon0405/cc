@@ -48,10 +48,10 @@ Type *consume_type() {
 			break;
 		case TK_LONG:
 			type = new_type(LONG, NULL);
+			break;
+		default:
+			return NULL; // this token is not a type
 	}
-
-	if (!type)
-		return type; // not a definition
 
 	tokens = tokens->next;
 
