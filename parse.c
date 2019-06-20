@@ -324,9 +324,10 @@ Node *term() {
 			node = new_node_call(ident_name);
 			node->argv = new_vlist();
 			while (!consume(')')) {
-				Node *arg = expr();
-				vlist_push(node->argv, arg);
-				consume(',');
+				do {
+					Node *arg = expr();
+					vlist_push(node->argv, arg);
+				} while (consume(','));
 			}
 		} else {
 			Variable *var = map_get(variables, ident_name);
@@ -353,9 +354,10 @@ Node *funcdef(Type *type) {
 		error_at(((Token *)(tokens->data))->input, "should be '('!");
 
 	while (!consume(')')) {
-		Node *arg = expr();
-		vlist_push(node->argv, arg);
-		consume(',');
+		do {
+			Node *arg = expr();
+			vlist_push(node->argv, arg);
+		} while (consume(','));
 	}
 	map_put(return_type, ident_name, type);
 
@@ -377,9 +379,8 @@ void program() {
 		Node *node = funcdef(type);
 		func->name = node->name;
 		func->nodedef = node;
+		func->code = stmt();
 
 		vlist_push(functions, func); // no gloabl variable available now
-
-		func->code = stmt();
 	}
 }
