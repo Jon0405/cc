@@ -323,11 +323,13 @@ Node *term() {
 		if (consume('(')) {
 			node = new_node_call(ident_name);
 			node->argv = new_vlist();
-			while (!consume(')')) {
+			if (!consume(')')) {
 				do {
 					Node *arg = expr();
 					vlist_push(node->argv, arg);
 				} while (consume(','));
+				if (!consume(')'))
+					error_at(((Token *)(tokens->data))->input, "should be ')'!");
 			}
 		} else {
 			Variable *var = map_get(variables, ident_name);
@@ -353,11 +355,14 @@ Node *funcdef(Type *type) {
 	if (!consume('('))
 		error_at(((Token *)(tokens->data))->input, "should be '('!");
 
-	while (!consume(')')) {
+	if (!consume(')')) {
 		do {
 			Node *arg = expr();
 			vlist_push(node->argv, arg);
 		} while (consume(','));
+
+		if (!consume(')'))
+			error_at(((Token *)(tokens->data))->input, "should be ')'!");
 	}
 	map_put(return_type, ident_name, type);
 
