@@ -34,7 +34,7 @@ Type *gen_lval(Node *node) {
 			case PTR:
 				space = space(WORD);
 		}
-		int offset = (*vcount - var->space + space) * SPACE_SIZE;
+		int offset = (*vcount - var->place + space) * SPACE_SIZE;
 		printf("  mov rax, rbp\n");
 		printf("  sub rax, %d\n", offset);
 		printf("  push rax\n");

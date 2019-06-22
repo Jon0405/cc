@@ -34,7 +34,7 @@ typedef struct Type {
 } Type;
 
 typedef struct {
-	int space;
+	int place;
 	Type *type;
 } Variable;
 
