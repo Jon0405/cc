@@ -191,10 +191,15 @@ Node *ptr(Node *node) {
 
 		if (var->type->ty == PTR) {
 			Type *next = var->type->ptrof;
-			if (next->ty == INT)
-				ptrnode = (new_node('*', ptrnode, new_node_num(4)));
-			else
-				ptrnode = (new_node('*', ptrnode, new_node_num(8)));
+			if (next->ty == INT){
+				ptrnode = (new_node('*', ptrnode, new_node_num(HALF_WORD)));
+			} else if (next->ty == LONG) {
+				ptrnode = (new_node('*', ptrnode, new_node_num(WORD)));
+			} else if (next->ty == PTR) {
+				ptrnode = (new_node('*', ptrnode, new_node_num(WORD)));
+			} else {
+				error("unknown type!");
+			}
 		}
 	}
 
