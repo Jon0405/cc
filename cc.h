@@ -8,7 +8,7 @@
 
 #define space(len) (len / SPACE_SIZE)
 
-// for variable token
+// linked list
 typedef struct Vlist{
 	void *data;
 	struct Vlist *next;
