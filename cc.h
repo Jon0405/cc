@@ -1,6 +1,11 @@
 #ifndef _CC_H
 #define _CC_H
 
+// in bytes
+#define WORD      8
+#define HALF_WORD 4
+#define PLACE     4
+
 // for variable token
 typedef struct Vlist{
 	void *data;

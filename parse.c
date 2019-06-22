@@ -27,11 +27,6 @@ program    = funcdef stmt
 
 #include "cc.h"
 
-// in bytes
-#define WORD      8
-#define HALF_WORD 4
-#define PLACE     4
-
 extern Vlist *tokens;
 extern Vlist *variables;
 extern Vlist *functions;

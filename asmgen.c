@@ -26,15 +26,15 @@ Type *gen_lval(Node *node) {
 		int size = 0;
 		switch (type->ty) {
 			case INT:
-				size = 1;
+				size = HALF_WORD / PLACE;
 				break;
 			case LONG:
-				size = 2;
+				size = WORD / PLACE;
 				break;
 			case PTR:
-				size = 2;
+				size = WORD / PLACE;
 		}
-		int offset = (*vcount - var->place + size) * 4;
+		int offset = (*vcount - var->place + size) * PLACE;
 		printf("  mov rax, rbp\n");
 		printf("  sub rax, %d\n", offset);
 		printf("  push rax\n");
