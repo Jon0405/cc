@@ -27,6 +27,11 @@ program    = funcdef stmt
 
 #include "cc.h"
 
+// in bytes
+#define WORD      8
+#define HALF_WORD 4
+#define PLACE     4
+
 extern Vlist *tokens;
 extern Vlist *variables;
 extern Vlist *functions;
@@ -259,10 +264,10 @@ Node *unary() {
 			node = node->lhs;
 
 		if (node->ty == ND_NUM)
-			return new_node_num(4);
+			return new_node_num(HALF_WORD);
 
 		if (node->ty == ND_ADDR)
-			return new_node_num(8);
+			return new_node_num(WORD);
 
 
 		int deref = 0;
@@ -275,11 +280,11 @@ Node *unary() {
 				type = type->ptrof;
 			switch (type->ty) {
 				case INT:
-					return new_node_num(4);
+					return new_node_num(HALF_WORD);
 				case LONG:
-					return new_node_num(8);
+					return new_node_num(WORD);
 				case PTR:
-					return new_node_num(8);
+					return new_node_num(WORD);
 			}
 		}
 		error("sizeof unknown type!");
@@ -296,13 +301,13 @@ Node *declare() {
 		char *ident_name = ((Token *)(tokens->data))->name;
 		switch (type->ty) {
 			case INT:
-				*vcount += 1;
+				*vcount += HALF_WORD / PLACE;
 				break;
 			case LONG:
-				*vcount += 2;
+				*vcount += WORD / PLACE;
 				break;
 			case PTR:
-				*vcount += 2;
+				*vcount += WORD / PLACE;
 		}
 		Variable *var = new_var(*vcount, type);
 		map_put(variables, ident_name, var);
