@@ -301,13 +301,13 @@ Node *declare() {
 		char *ident_name = ((Token *)(tokens->data))->name;
 		switch (type->ty) {
 			case INT:
-				*vcount += HALF_WORD / PLACE;
+				*vcount += space(HALF_WORD);
 				break;
 			case LONG:
-				*vcount += WORD / PLACE;
+				*vcount += space(WORD);
 				break;
 			case PTR:
-				*vcount += WORD / PLACE;
+				*vcount += space(WORD);
 		}
 		Variable *var = new_var(*vcount, type);
 		map_put(variables, ident_name, var);

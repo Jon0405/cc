@@ -23,18 +23,18 @@ Type *gen_lval(Node *node) {
 	} else if (node->ty == ND_IDENT) {
 		Variable *var = (Variable *)map_get(variables, node->name);
 		type = var->type;
-		int size = 0;
+		int space = 0;
 		switch (type->ty) {
 			case INT:
-				size = HALF_WORD / PLACE;
+				space = space(HALF_WORD);
 				break;
 			case LONG:
-				size = WORD / PLACE;
+				space = space(WORD);
 				break;
 			case PTR:
-				size = WORD / PLACE;
+				space = space(WORD);
 		}
-		int offset = (*vcount - var->place + size) * PLACE;
+		int offset = (*vcount - var->space + space) * SPACE_SIZE;
 		printf("  mov rax, rbp\n");
 		printf("  sub rax, %d\n", offset);
 		printf("  push rax\n");

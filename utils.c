@@ -3,9 +3,9 @@
 #include "cc.h"
 
 // var
-Variable *new_var(int place, Type *type) {
+Variable *new_var(int space, Type *type) {
 	Variable *var = malloc(sizeof(Variable));
-	var->place = place;
+	var->space = space;
 	var->type = type;
 	return var;
 }

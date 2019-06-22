@@ -10,7 +10,7 @@ char *user_input; // raw input data
 Vlist *tokens; // token list
 
 // for parser
-int *vcount;        // variable count
+int *vcount;        // variable space count
 Vlist *variables;   // variable map
 Vlist *functions;   // function list
 Vlist *return_type; // functions return type

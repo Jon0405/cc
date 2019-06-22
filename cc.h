@@ -1,10 +1,12 @@
 #ifndef _CC_H
 #define _CC_H
 
-// in bytes
-#define WORD      8
-#define HALF_WORD 4
-#define PLACE     4
+// space (in bytes)
+#define WORD       8
+#define HALF_WORD  4
+#define SPACE_SIZE 4
+
+#define space(len) (len / SPACE_SIZE)
 
 // for variable token
 typedef struct Vlist{
@@ -32,7 +34,7 @@ typedef struct Type {
 } Type;
 
 typedef struct {
-	int place;
+	int space;
 	Type *type;
 } Variable;
 
