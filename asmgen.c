@@ -14,7 +14,14 @@ extern int lelsecount;
 
 Type *gen_lval(Node *node) {
 	Type *type = NULL;
-	if (node->ty == ND_INDIR) {
+	if (node->ty == ND_ARRAY) {
+		type = gen_lval(node->lhs);
+		gen(node->rhs);
+		printf("  pop rdi\n");
+		printf("  pop rax\n");
+		printf("  add rax, rdi\n");
+		printf("  push rax\n");
+	} else if (node->ty == ND_INDIR) {
 		type = gen_lval(node->lhs);
 		type = type->ptrof;
 		printf("  pop rax\n");
@@ -180,6 +187,20 @@ void gen(Node *node) {
 	if (node->ty == ND_IDENT) {
 		Type *type = gen_lval(node);
 		printf("  pop rax\n");
+		if (type->ty == INT)
+			printf("  mov eax, DWORD PTR [rax]\n");
+		else
+			printf("  mov rax, [rax]\n");
+		printf("  push rax\n");
+		return;
+	}
+
+	if (node->ty == ND_ARRAY) {
+		Type *type = gen_lval(node->lhs);
+		gen(node->rhs);
+		printf("  pop rdi\n");
+		printf("  pop rax\n");
+		printf("  add rax, rdi\n");
 		if (type->ty == INT)
 			printf("  mov eax, DWORD PTR [rax]\n");
 		else

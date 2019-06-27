@@ -89,6 +89,7 @@ enum {
 	ND_CALL,      // function call
 	ND_DEF,       // function definition
 	ND_NOP,
+	ND_ARRAY,
 };
 
 // node structure

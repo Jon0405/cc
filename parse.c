@@ -360,6 +360,11 @@ Node *term() {
 				error("undeclared variable!");
 			curr_ptrof = var->type;
 			node = new_node_ident(ident_name);
+			if (consume('[')) {
+				node = new_node(ND_ARRAY, node, ptr(node));
+				if (!consume(']'))
+					error_at(((Token *)(tokens->data))->input, "should be ']'!");
+			}
 		}
 	} else {
 		error_at(((Token *)(tokens->data))->input, "unexpected token");
