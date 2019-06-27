@@ -299,6 +299,8 @@ Node *declare() {
 		if (((Token *)(tokens->data))->ty != TK_IDENT)
 			error_at(((Token *)(tokens->data))->input, "should be an indentifier!");
 		char *ident_name = ((Token *)(tokens->data))->name;
+
+		// if declaring an array, get the array size
 		Vlist *curr = tokens->next;
 		if (((Token *)(curr->data))->ty == '[') {
 			curr = curr->next;
@@ -307,6 +309,8 @@ Node *declare() {
 			if (((Token *)(curr->data))->ty != ']')
 				error_at(((Token *)(tokens->data))->input, "should be ']'!");
 		}
+
+		// compute variable or array size
 		switch (type->ty) {
 			case INT:
 				*vcount += type->array_size? type->array_size * space(HALF_WORD): space(HALF_WORD);
@@ -317,6 +321,7 @@ Node *declare() {
 			case PTR:
 				*vcount += type->array_size? type->array_size * space(WORD): space(WORD);
 		}
+
 		Variable *var = new_var(*vcount, type);
 		map_put(variables, ident_name, var);
 	}
