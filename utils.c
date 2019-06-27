@@ -15,6 +15,7 @@ Type *new_type(int ty, Type *ptrof) {
 	Type *type = malloc(sizeof(Type));
 	type->ty = ty;
 	type->ptrof = ptrof;
+	type->array_size = 0;
 	return type; 
 }
 

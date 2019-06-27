@@ -299,15 +299,23 @@ Node *declare() {
 		if (((Token *)(tokens->data))->ty != TK_IDENT)
 			error_at(((Token *)(tokens->data))->input, "should be an indentifier!");
 		char *ident_name = ((Token *)(tokens->data))->name;
+		Vlist *curr = tokens->next;
+		if (((Token *)(curr->data))->ty == '[') {
+			curr = curr->next;
+			type->array_size = ((Token *)(curr->data))->val;
+			curr = curr->next;
+			if (((Token *)(curr->data))->ty != ']')
+				error_at(((Token *)(tokens->data))->input, "should be ']'!");
+		}
 		switch (type->ty) {
 			case INT:
-				*vcount += space(HALF_WORD);
+				*vcount += type->array_size? type->array_size * space(HALF_WORD): space(HALF_WORD);
 				break;
 			case LONG:
-				*vcount += space(WORD);
+				*vcount += type->array_size? type->array_size * space(WORD): space(WORD);
 				break;
 			case PTR:
-				*vcount += space(WORD);
+				*vcount += type->array_size? type->array_size * space(WORD): space(WORD);
 		}
 		Variable *var = new_var(*vcount, type);
 		map_put(variables, ident_name, var);
