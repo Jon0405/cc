@@ -68,5 +68,7 @@ try 8 "int main() {int **a; return sizeof(*a);}"
 try 8 "int main() {int a; return sizeof(&a);}"
 try 4 "int main() {int a; return sizeof(sizeof(a));}"
 try 10 "int main(){int a[5]; a[3] = 10; return a[3];}"
+try 20 "int main(){int a[5]; return sizeof(a);}"
+try 10 "int main(){int a[5]; a[3] = 10; int *b = &a[3]; return *b;}"
 
 echo OK

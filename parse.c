@@ -244,7 +244,7 @@ Node *unary() {
 
 	if (consume('&')) {
 		Node *node = term();
-		if (node->ty != ND_IDENT && node->ty != ND_INDIR)
+		if (node->ty != ND_IDENT && node->ty != ND_INDIR && node->ty != ND_ARRAY)
 			error("get address from a non-variable value!");
 		return new_node(ND_ADDR, node, NULL);
 	}
@@ -280,11 +280,11 @@ Node *unary() {
 				type = type->ptrof;
 			switch (type->ty) {
 				case INT:
-					return new_node_num(HALF_WORD);
+					return type->array_size? new_node_num(type->array_size * HALF_WORD): new_node_num(HALF_WORD);
 				case LONG:
-					return new_node_num(WORD);
+					return type->array_size? new_node_num(type->array_size * WORD): new_node_num(WORD);
 				case PTR:
-					return new_node_num(WORD);
+					return type->array_size? new_node_num(type->array_size * WORD): new_node_num(WORD);
 			}
 		}
 		error("sizeof unknown type!");
