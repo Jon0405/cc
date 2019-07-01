@@ -42,6 +42,7 @@ Type *gen_lval(Node *node) {
 				space = space(WORD);
 		}
 		int offset = (*vcount - var->place + space) * SPACE_SIZE;
+		fprintf(stderr, "*vcount = %d, var->place = %d, space = %d, SPACE_SIZE = %d, offset = %d\n", *vcount, var->place, space, SPACE_SIZE, offset);
 		printf("  mov rax, rbp\n");
 		printf("  sub rax, %d\n", offset);
 		printf("  push rax\n");

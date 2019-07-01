@@ -200,6 +200,16 @@ Node *ptr(Node *node) {
 			} else {
 				error("unknown type!");
 			}
+		} else if (var->type->array_size != 0) {
+			if (var->type->ty == INT){
+				ptrnode = new_node('*', ptrnode, new_node_num(HALF_WORD));
+			} else if (var->type->ty == LONG) {
+				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
+			} else if (var->type->ty == PTR) {
+				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
+			} else {
+				error("unknown type!");
+			}
 		}
 	} else if (node->ty == ND_ADDR) {
 		Node *lnode = node->lhs;
@@ -334,25 +344,42 @@ Node *declare() {
 		if (((Token *)(curr->data))->ty == '[') {
 			curr = curr->next;
 			type->array_size = ((Token *)(curr->data))->val;
+			if (type->array_size < 1)
+				error_at(((Token *)(curr->data))->input, "should be >= 1!");
 			curr = curr->next;
 			if (((Token *)(curr->data))->ty != ']')
 				error_at(((Token *)(tokens->data))->input, "should be ']'!");
+			tokens->next = curr->next;
 		}
 
 		// compute variable or array size
 		switch (type->ty) {
 			case INT:
-				*vcount += type->array_size? type->array_size * space(HALF_WORD): space(HALF_WORD);
+				*vcount += space(HALF_WORD);
 				break;
 			case LONG:
-				*vcount += type->array_size? type->array_size * space(WORD): space(WORD);
+				*vcount += space(WORD);
 				break;
 			case PTR:
-				*vcount += type->array_size? type->array_size * space(WORD): space(WORD);
+				*vcount += space(WORD);
 		}
 
 		Variable *var = new_var(*vcount, type);
+
+		if (type->array_size) {
+			switch (type->ty) {
+				case INT:
+					*vcount += (type->array_size - 1) * space(HALF_WORD);
+					break;
+				case LONG:
+					*vcount += (type->array_size - 1) * space(WORD);
+					break;
+				case PTR:
+					*vcount += (type->array_size - 1) * space(WORD);
+		}
+		}
 		map_put(variables, ident_name, var);
+
 	}
 
 	return term();
