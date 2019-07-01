@@ -192,11 +192,26 @@ Node *ptr(Node *node) {
 		if (var->type->ty == PTR) {
 			Type *next = var->type->ptrof;
 			if (next->ty == INT){
-				ptrnode = (new_node('*', ptrnode, new_node_num(HALF_WORD)));
+				ptrnode = new_node('*', ptrnode, new_node_num(HALF_WORD));
 			} else if (next->ty == LONG) {
-				ptrnode = (new_node('*', ptrnode, new_node_num(WORD)));
+				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
 			} else if (next->ty == PTR) {
-				ptrnode = (new_node('*', ptrnode, new_node_num(WORD)));
+				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
+			} else {
+				error("unknown type!");
+			}
+		}
+	} else if (node->ty == ND_ADDR) {
+		Node *lnode = node->lhs;
+		Variable *var = map_get(variables, lnode->name);
+		if (var->type->ty == PTR) {
+			Type *next = var->type->ptrof;
+			if (next->ty == INT){
+				ptrnode = new_node('*', ptrnode, new_node_num(HALF_WORD));
+			} else if (next->ty == LONG) {
+				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
+			} else if (next->ty == PTR) {
+				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
 			} else {
 				error("unknown type!");
 			}
@@ -266,8 +281,22 @@ Node *unary() {
 		if (node->ty == ND_NUM)
 			return new_node_num(HALF_WORD);
 
-		if (node->ty == ND_ADDR)
+		if (node->ty == ND_ADDR) {
+			Node *lnode = node->lhs;
+			Variable *var = map_get(variables, lnode->name);
+			Type *type = var->type;
+			if (type->array_size != 0) {
+				switch (type->ty) {
+					case INT:
+						return new_node_num(type->array_size * HALF_WORD);
+					case LONG:
+						return new_node_num(type->array_size * WORD);
+					case PTR:
+						return new_node_num(type->array_size * WORD);
+				}
+			}
 			return new_node_num(WORD);
+		}
 
 
 		int deref = 0;
@@ -280,11 +309,11 @@ Node *unary() {
 				type = type->ptrof;
 			switch (type->ty) {
 				case INT:
-					return type->array_size? new_node_num(type->array_size * HALF_WORD): new_node_num(HALF_WORD);
+					return new_node_num(HALF_WORD);
 				case LONG:
-					return type->array_size? new_node_num(type->array_size * WORD): new_node_num(WORD);
+					return new_node_num(WORD);
 				case PTR:
-					return type->array_size? new_node_num(type->array_size * WORD): new_node_num(WORD);
+					return new_node_num(WORD);
 			}
 		}
 		error("sizeof unknown type!");
@@ -360,8 +389,8 @@ Node *term() {
 				error("undeclared variable!");
 			curr_ptrof = var->type;
 			node = new_node_ident(ident_name);
+			Type *type = var->type;
 			if (consume('[')) {
-				Type *type = var->type;
 				if (!type->array_size) {
 					if (type->ty != PTR)
 						error_at(((Token *)(tokens->data))->input, "deference a not pointer variable!");
@@ -372,6 +401,8 @@ Node *term() {
 				}
 				if (!consume(']'))
 					error_at(((Token *)(tokens->data))->input, "should be ']'!");
+			} else if (type->array_size != 0) {
+				node = new_node(ND_ADDR, node, NULL);
 			}
 		}
 	} else {
