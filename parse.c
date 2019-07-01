@@ -183,7 +183,24 @@ Node *relational() {
 	}
 }
 
-// TODO: deduplicate similar code
+Node *type_size(Type *type) {
+	Node *node = NULL;
+	switch (type->ty) {
+		case INT:
+			node = new_node_num(HALF_WORD);
+			break;
+		case LONG:
+			node = new_node_num(WORD);
+			break;
+		case PTR:
+			node = new_node_num(WORD);
+			break;
+		default:
+			error("unknown type!");
+	}
+	return node;
+}
+
 Node *ptr(Node *node) {
 	Node *ptrnode = mul();
 
@@ -191,41 +208,16 @@ Node *ptr(Node *node) {
 		Variable *var = map_get(variables, node->name);
 
 		if (var->type->ty == PTR) {
-			Type *next = var->type->ptrof;
-			if (next->ty == INT){
-				ptrnode = new_node('*', ptrnode, new_node_num(HALF_WORD));
-			} else if (next->ty == LONG) {
-				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
-			} else if (next->ty == PTR) {
-				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
-			} else {
-				error("unknown type!");
-			}
+			ptrnode = new_node('*', ptrnode, type_size(var->type->ptrof));
 		} else if (var->type->array_size != 0) {
-			if (var->type->ty == INT){
-				ptrnode = new_node('*', ptrnode, new_node_num(HALF_WORD));
-			} else if (var->type->ty == LONG) {
-				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
-			} else if (var->type->ty == PTR) {
-				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
-			} else {
-				error("unknown type!");
-			}
+			ptrnode = new_node('*', ptrnode, type_size(var->type));
 		}
 	} else if (node->ty == ND_ADDR) {
 		Node *lnode = node->lhs;
 		Variable *var = map_get(variables, lnode->name);
 		Type *type = var->type;
 		if (type->array_size != 0) {
-			if (type->ty == INT){
-				ptrnode = new_node('*', ptrnode, new_node_num(HALF_WORD));
-			} else if (type->ty == LONG) {
-				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
-			} else if (type->ty == PTR) {
-				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
-			} else {
-				error("unknown type!");
-			}
+			ptrnode = new_node('*', ptrnode, type_size(var->type));
 		}
 	}
 
@@ -297,14 +289,7 @@ Node *unary() {
 			Variable *var = map_get(variables, lnode->name);
 			Type *type = var->type;
 			if (type->array_size != 0) {
-				switch (type->ty) {
-					case INT:
-						return new_node_num(type->array_size * HALF_WORD);
-					case LONG:
-						return new_node_num(type->array_size * WORD);
-					case PTR:
-						return new_node_num(type->array_size * WORD);
-				}
+				return new_node('*', new_node_num(type->array_size), type_size(type));
 			}
 			return new_node_num(WORD);
 		}
@@ -318,14 +303,7 @@ Node *unary() {
 			Type *type = var->type;
 			for (; deref > 0; deref--)
 				type = type->ptrof;
-			switch (type->ty) {
-				case INT:
-					return new_node_num(HALF_WORD);
-				case LONG:
-					return new_node_num(WORD);
-				case PTR:
-					return new_node_num(WORD);
-			}
+			return type_size(type);
 		}
 		error("sizeof unknown type!");
 	}
@@ -354,6 +332,7 @@ Node *declare() {
 		}
 
 		// compute variable or array size
+		// TODO: simplify logic
 		switch (type->ty) {
 			case INT:
 				*vcount += space(HALF_WORD);
