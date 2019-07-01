@@ -62,6 +62,40 @@ Type *consume_type() {
 	return type;
 }
 
+// type utils
+int type_space(Type *type) {
+	int space = 0;
+	switch (type->ty) {
+		case INT:
+			space = space(HALF_WORD);
+			break;
+		case LONG:
+			space = space(WORD);
+			break;
+		case PTR:
+			space = space(WORD);
+	}
+	return space;
+}
+
+Node *type_size(Type *type) {
+	Node *node = NULL;
+	switch (type->ty) {
+		case INT:
+			node = new_node_num(HALF_WORD);
+			break;
+		case LONG:
+			node = new_node_num(WORD);
+			break;
+		case PTR:
+			node = new_node_num(WORD);
+			break;
+		default:
+			error("unknown type!");
+	}
+	return node;
+}
+
 // parse nodes
 Node *stmt();
 Node *expr();
@@ -181,24 +215,6 @@ Node *relational() {
 		else
 			return node;
 	}
-}
-
-Node *type_size(Type *type) {
-	Node *node = NULL;
-	switch (type->ty) {
-		case INT:
-			node = new_node_num(HALF_WORD);
-			break;
-		case LONG:
-			node = new_node_num(WORD);
-			break;
-		case PTR:
-			node = new_node_num(WORD);
-			break;
-		default:
-			error("unknown type!");
-	}
-	return node;
 }
 
 Node *ptr(Node *node) {
@@ -332,32 +348,12 @@ Node *declare() {
 		}
 
 		// compute variable or array size
-		// TODO: simplify logic
-		switch (type->ty) {
-			case INT:
-				*vcount += space(HALF_WORD);
-				break;
-			case LONG:
-				*vcount += space(WORD);
-				break;
-			case PTR:
-				*vcount += space(WORD);
-		}
-
+		*vcount += type_space(type);
 		Variable *var = new_var(*vcount, type);
 
-		if (type->array_size) {
-			switch (type->ty) {
-				case INT:
-					*vcount += (type->array_size - 1) * space(HALF_WORD);
-					break;
-				case LONG:
-					*vcount += (type->array_size - 1) * space(WORD);
-					break;
-				case PTR:
-					*vcount += (type->array_size - 1) * space(WORD);
-		}
-		}
+		if (type->array_size) // array space
+			*vcount += (type->array_size - 1) * type_space(type);
+
 		map_put(variables, ident_name, var);
 
 	}
