@@ -11,14 +11,14 @@ equality   = relational ("==" relational | "!=" relational)*
 relational = add ("<" add | "<=" add | ">" add | ">=" add)*
 add        = mul ("+" mul | "-" mul)*
 mul        = unary ("*" unary | "/" unary)*
-unary      = ("+" | "-" | "&")? term
+unary      = "sizeof" unary
+           | ("+" | "-" | "&")? term
            | "*"* unary
            | declare
 declare    = ("int" | "long") ("*"*)? term
 term       = num
            | ident ("(" (expr (",")?)*? ")")?
            | "(" expr ")"
-	   | sizeof term
 funcdef    = ("int" | "long") ("*"?)? ident "(" (declare*)? ")"  
 program    = funcdef stmt
 */
@@ -258,6 +258,38 @@ Node *unary() {
 		return node;
 	}
 
+	if (consume(TK_SIZEOF)) {
+		Node *node = unary();
+		while (node->ty == '+' || node->ty == '-' || node->ty == '*' || node->ty == '/')
+			node = node->lhs;
+
+		if (node->ty == ND_NUM)
+			return new_node_num(HALF_WORD);
+
+		if (node->ty == ND_ADDR)
+			return new_node_num(WORD);
+
+
+		int deref = 0;
+		for (; node->ty == ND_INDIR; node = node->lhs)
+			deref++;
+		if (node->ty == ND_IDENT) {
+			Variable *var = map_get(variables, node->name);
+			Type *type = var->type;
+			for (; deref > 0; deref--)
+				type = type->ptrof;
+			switch (type->ty) {
+				case INT:
+					return type->array_size? new_node_num(type->array_size * HALF_WORD): new_node_num(HALF_WORD);
+				case LONG:
+					return type->array_size? new_node_num(type->array_size * WORD): new_node_num(WORD);
+				case PTR:
+					return type->array_size? new_node_num(type->array_size * WORD): new_node_num(WORD);
+			}
+		}
+		error("sizeof unknown type!");
+	}
+
 	return declare();
 }
 
@@ -342,36 +374,6 @@ Node *term() {
 					error_at(((Token *)(tokens->data))->input, "should be ']'!");
 			}
 		}
-	} else if (consume(TK_SIZEOF)) {
-		node = term();
-		while (node->ty == '+' || node->ty == '-' || node->ty == '*' || node->ty == '/')
-			node = node->lhs;
-
-		if (node->ty == ND_NUM)
-			return new_node_num(HALF_WORD);
-
-		if (node->ty == ND_ADDR)
-			return new_node_num(WORD);
-
-
-		int deref = 0;
-		for (; node->ty == ND_INDIR; node = node->lhs)
-			deref++;
-		if (node->ty == ND_IDENT) {
-			Variable *var = map_get(variables, node->name);
-			Type *type = var->type;
-			for (; deref > 0; deref--)
-				type = type->ptrof;
-			switch (type->ty) {
-				case INT:
-					return type->array_size? new_node_num(type->array_size * HALF_WORD): new_node_num(HALF_WORD);
-				case LONG:
-					return type->array_size? new_node_num(type->array_size * WORD): new_node_num(WORD);
-				case PTR:
-					return type->array_size? new_node_num(type->array_size * WORD): new_node_num(WORD);
-			}
-		}
-		error("sizeof unknown type!");
 	} else {
 		error_at(((Token *)(tokens->data))->input, "unexpected token");
 	}
