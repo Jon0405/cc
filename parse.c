@@ -186,24 +186,14 @@ Node *relational() {
 Node *ptr(Node *node) {
 	Node *ptrnode = mul();
 
-	if (node->ty == ND_IDENT) {
-		Variable *var = map_get(variables, node->name);
+	if (node->ty == ND_IDENT || node->ty == ND_ADDR) {
+		Variable *var = NULL;
+		if (node->ty == ND_ADDR)
+			var = map_get(variables, node->lhs->name);
+		else
+			var = map_get(variables, node->name);
+			
 
-		if (var->type->ty == PTR) {
-			Type *next = var->type->ptrof;
-			if (next->ty == INT){
-				ptrnode = new_node('*', ptrnode, new_node_num(HALF_WORD));
-			} else if (next->ty == LONG) {
-				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
-			} else if (next->ty == PTR) {
-				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
-			} else {
-				error("unknown type!");
-			}
-		}
-	} else if (node->ty == ND_ADDR) {
-		Node *lnode = node->lhs;
-		Variable *var = map_get(variables, lnode->name);
 		if (var->type->ty == PTR) {
 			Type *next = var->type->ptrof;
 			if (next->ty == INT){
