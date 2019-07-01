@@ -71,5 +71,6 @@ try 10 "int main(){int a[5]; a[3] = 10; return a[3];}"
 try 20 "int main(){int a[5]; return sizeof(a);}"
 try 10 "int main(){int a[5]; a[3] = 10; int *b = &a[3]; return *b;}"
 try 10 "int main(){int *a[5]; int b = 10; a[3] = &b; return *a[3];}"
+func="ptrlong"; tryfunc 5 "int main() {long *a = arr(10); return a[5];}"
 
 echo OK
