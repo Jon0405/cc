@@ -183,6 +183,7 @@ Node *relational() {
 	}
 }
 
+// TODO: deduplicate similar code
 Node *ptr(Node *node) {
 	Node *ptrnode = mul();
 
@@ -214,13 +215,13 @@ Node *ptr(Node *node) {
 	} else if (node->ty == ND_ADDR) {
 		Node *lnode = node->lhs;
 		Variable *var = map_get(variables, lnode->name);
-		if (var->type->ty == PTR) {
-			Type *next = var->type->ptrof;
-			if (next->ty == INT){
+		Type *type = var->type;
+		if (type->array_size != 0) {
+			if (type->ty == INT){
 				ptrnode = new_node('*', ptrnode, new_node_num(HALF_WORD));
-			} else if (next->ty == LONG) {
+			} else if (type->ty == LONG) {
 				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
-			} else if (next->ty == PTR) {
+			} else if (type->ty == PTR) {
 				ptrnode = new_node('*', ptrnode, new_node_num(WORD));
 			} else {
 				error("unknown type!");
