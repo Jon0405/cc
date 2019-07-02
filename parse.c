@@ -294,6 +294,8 @@ Node *unary() {
 
 	if (consume(TK_SIZEOF)) {
 		Node *node = unary();
+
+		Node *head = node;
 		while (node->ty == '+' || node->ty == '-' || node->ty == '*' || node->ty == '/')
 			node = node->lhs;
 
@@ -304,12 +306,18 @@ Node *unary() {
 			Node *lnode = node->lhs;
 			Variable *var = map_get(variables, lnode->name);
 			Type *type = var->type;
-			if (type->array_size != 0) {
+			if (type->array_size != 0 && head == node) {
 				return new_node('*', new_node_num(type->array_size), type_size(type));
 			}
 			return new_node_num(WORD);
 		}
 
+		if (node->ty == ND_ARRAY) {
+			Node *lnode = node->lhs;
+			Variable *var = map_get(variables, lnode->name);
+			Type *type = var->type;
+			return type_size(type);
+		}
 
 		int deref = 0;
 		for (; node->ty == ND_INDIR; node = node->lhs)
