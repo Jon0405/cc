@@ -12,8 +12,9 @@ Vlist *tokens; // token list
 // for parser
 int *vcount;        // variable space count
 Vlist *variables;   // variable map
+Vlist *globals;     // global variables map
 Vlist *functions;   // function list
-Vlist *return_type; // functions return type
+Vlist *return_type; // functions return typ mape
 
 // for assembly code generator
 int lbegincount; // begin label count
@@ -43,6 +44,7 @@ int main(int argc, char **argv) {
 	tokens = tokens->next; // skip head
 	functions = new_vlist();
 	return_type = new_vlist();
+	globals = new_vlist();
 	variables = NULL;
 	program();
 
