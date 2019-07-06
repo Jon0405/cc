@@ -15,11 +15,13 @@ unary      = "sizeof" unary
            | ("+" | "-" | "&")? term
            | "*"* unary
            | declare
-declare    = ("int" | "long") ("*"*)? term
+declare    = ("int" | "long") ("*"*)? term ("[" expr "]")?
+           | term
 term       = num
-           | ident ("(" (expr (",")?)*? ")")?
+           | ident ("(" (expr (",")?)*? ")")
+	   | ident ("[" expr "]")?
            | "(" expr ")"
-funcdef    = ("int" | "long") ("*"?)? ident "(" (declare*)? ")"  
+funcdef    = ("int" | "long") ("*"?)? function "(" (declare*)? ")"
 program    = funcdef stmt
 */
 
