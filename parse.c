@@ -31,6 +31,7 @@ program    = funcdef stmt
 
 extern Vlist *tokens;
 extern Vlist *variables;
+extern Vlist *globals;
 extern Vlist *functions;
 extern Vlist *return_type;
 extern int *vcount;
@@ -337,7 +338,7 @@ Node *unary() {
 	return declare();
 }
 
-Node *declare() {
+Node *_declare(Vlist *var_map) {
 	Type *type = consume_type();
 	if (type != NULL) { // is a declaration
 		if (((Token *)(tokens->data))->ty != TK_IDENT)
@@ -364,11 +365,19 @@ Node *declare() {
 		if (type->array_size) // array space
 			*vcount += (type->array_size - 1) * type_space(type);
 
-		map_put(variables, ident_name, var);
+		map_put(var_map, ident_name, var);
 
 	}
 
 	return term();
+}
+
+Node *declare() {
+	return _declare(variables);
+}
+
+Node *declare_global() {
+	return _declare(globals);
 }
 
 Node *term() {
@@ -456,18 +465,30 @@ Node *funcdef() {
 
 #define new_intptr(i) do { i = malloc(sizeof(int)); *i = 0; } while (0);
 
+int is_func_def() {
+	Vlist *third = tokens->next->next;
+	if (((Token *)(third->data))->ty == '(')
+		return 1;
+	return 0;
+}
+
 void program() {
 	while (((Token *)(tokens->data))->ty != TK_EOF) {
-		Func *func = malloc(sizeof(Func));
-		new_intptr(func->vcount);
-		vcount = func->vcount;
-		variables = func->variables = new_vlist();
+		if (is_func_def()) {
+			Func *func = malloc(sizeof(Func));
+			new_intptr(func->vcount);
+			vcount = func->vcount;
+			variables = func->variables = new_vlist();
 
-		Node *node = funcdef();
-		func->name = node->name;
-		func->nodedef = node;
-		func->code = stmt();
+			Node *node = funcdef();
+			func->name = node->name;
+			func->nodedef = node;
+			func->code = stmt();
 
-		vlist_push(functions, func); // no gloabl variable available now
+			vlist_push(functions, func);
+		} else {
+			declare_global();
+			// TODO: assign value to global variables
+		}
 	}
 }
