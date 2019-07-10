@@ -338,7 +338,7 @@ Node *unary() {
 	return declare();
 }
 
-Node *_declare(Vlist *var_map) {
+Node *_declare(Vlist *var_map, int *var_count) {
 	Type *type = consume_type();
 	if (type != NULL) { // is a declaration
 		if (((Token *)(tokens->data))->ty != TK_IDENT)
@@ -359,11 +359,15 @@ Node *_declare(Vlist *var_map) {
 		}
 
 		// compute variable or array size
-		*vcount += type_space(type);
-		Variable *var = new_var(*vcount, type);
-
-		if (type->array_size) // array space
-			*vcount += (type->array_size - 1) * type_space(type);
+		Variable *var = NULL;
+		if (var_count != NULL) {
+			*var_count += type_space(type);
+			var = new_var(*var_count, type);
+			if (type->array_size) // array space
+				*var_count += (type->array_size - 1) * type_space(type);
+		} else {
+			var = new_var(type->array_size? type->array_size * type_space(type): type_space(type), type);
+		}
 
 		map_put(var_map, ident_name, var);
 
@@ -373,11 +377,11 @@ Node *_declare(Vlist *var_map) {
 }
 
 Node *declare() {
-	return _declare(variables);
+	return _declare(variables, vcount);
 }
 
 Node *declare_global() {
-	return _declare(globals);
+	return _declare(globals, NULL);
 }
 
 Node *term() {
