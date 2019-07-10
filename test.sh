@@ -80,5 +80,7 @@ try 4 "int main() {int a[5]; return sizeof(a[3]);}"
 try 4 "int main() {int a[5]; return sizeof(a[3] + 3);}"
 try 5 "int a; int main() {a = 5; return a;}"
 try 5 "int a[5]; int main() {a[3] = 5; return a[3];}"
+try 4 "int a; int main() {return sizeof(a);}"
+try 20 "int a[5]; int main() {return sizeof(a);}"
 
 echo OK

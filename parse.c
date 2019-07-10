@@ -308,6 +308,8 @@ Node *unary() {
 		if (node->ty == ND_ADDR) {
 			Node *lnode = node->lhs;
 			Variable *var = map_get(variables, lnode->name);
+			if (var == NULL)
+				var = map_get(globals, lnode->name);
 			Type *type = var->type;
 			if (type->array_size != 0 && head == node) {
 				return new_node('*', new_node_num(type->array_size), type_size(type));
@@ -318,6 +320,8 @@ Node *unary() {
 		if (node->ty == ND_ARRAY) {
 			Node *lnode = node->lhs;
 			Variable *var = map_get(variables, lnode->name);
+			if (var == NULL)
+				var = map_get(globals, lnode->name);
 			Type *type = var->type;
 			return type_size(type);
 		}
@@ -325,8 +329,10 @@ Node *unary() {
 		int deref = 0;
 		for (; node->ty == ND_INDIR; node = node->lhs)
 			deref++;
-		if (node->ty == ND_IDENT) {
+		if (node->ty == ND_IDENT || node->ty == ND_GLOBAL) {
 			Variable *var = map_get(variables, node->name);
+			if (var == NULL)
+				var = map_get(globals, node->name);
 			Type *type = var->type;
 			for (; deref > 0; deref--)
 				type = type->ptrof;
