@@ -26,6 +26,7 @@ program    = funcdef stmt
 */
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "cc.h"
 
@@ -332,7 +333,7 @@ Node *unary() {
 				type = type->ptrof;
 			return type_size(type);
 		}
-		error("sizeof unknown type!");
+		error_at(((Token *)(tokens->data))->input, "unknown type!");
 	}
 
 	return declare();
@@ -365,12 +366,15 @@ Node *_declare(Vlist *var_map, int *var_count) {
 			var = new_var(*var_count, type);
 			if (type->array_size) // array space
 				*var_count += (type->array_size - 1) * type_space(type);
+			map_put(var_map, ident_name, var);
 		} else {
 			var = new_var(type->array_size? type->array_size * type_space(type): type_space(type), type);
+			map_put(var_map, ident_name, var);
+			tokens = tokens->next;
+			if (!consume(';'))
+				error_at(((Token *)(tokens->data))->input, "should be ';'!");
+			return NULL;
 		}
-
-		map_put(var_map, ident_name, var);
-
 	}
 
 	return term();
@@ -380,8 +384,8 @@ Node *declare() {
 	return _declare(variables, vcount);
 }
 
-Node *declare_global() {
-	return _declare(globals, NULL);
+void declare_global() {
+	_declare(globals, NULL);
 }
 
 Node *term() {
@@ -412,7 +416,7 @@ Node *term() {
 		} else {
 			Variable *var = map_get(variables, ident_name);
 			if (var == NULL)
-				error("undeclared variable!");
+				error_at(((Token *)(tokens->data))->input - 1, "undeclared variable!");
 			curr_ptrof = var->type;
 			node = new_node_ident(ident_name);
 			Type *type = var->type;
@@ -492,7 +496,6 @@ void program() {
 			vlist_push(functions, func);
 		} else {
 			declare_global();
-			// TODO: assign value to global variables
 		}
 	}
 }

@@ -51,6 +51,16 @@ int main(int argc, char **argv) {
 	// header
 	printf(".intel_syntax noprefix\n");
 
+	// allocate global variables
+	Vlist *curr_var = globals->next; // skip list head
+	while (curr_var != NULL) {
+		char *name = ((Map *)curr_var->data)->key;
+		Variable *var = (Variable *)((Map *)curr_var->data)->val;
+		printf("%s:\n", name);
+		printf("  .zero %d\n", var->place * 4);
+		curr_var = curr_var->next;
+	}
+
 	functions = functions->next; // skip list head
 	for (;;) {
 		if (functions == NULL)
