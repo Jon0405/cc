@@ -281,7 +281,7 @@ Node *unary() {
 
 	if (consume('&')) {
 		Node *node = term();
-		if (node->ty != ND_IDENT && node->ty != ND_INDIR && node->ty != ND_ARRAY)
+		if (node->ty != ND_IDENT && node->ty != ND_INDIR && node->ty != ND_ARRAY && node->ty != ND_GLOBAL)
 			error("get address from a non-variable value!");
 		return new_node(ND_ADDR, node, NULL);
 	}
