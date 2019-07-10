@@ -78,6 +78,7 @@ enum {
 	ND_ADDR,      // address
 	ND_INDIR,     // indirect
 	ND_IDENT,     // indentifier
+	ND_GLOBAL,    // global variable
 	ND_RET,       // return
 	ND_IF,        // if
 	ND_ELSE,      // else
@@ -139,6 +140,7 @@ Type *new_type(int ty, Type *ptfof);
 Node *new_node(int ty, Node *lhs, Node *rhs);
 Node *new_node_num(int val);
 Node *new_node_ident(char *name);
+Node *new_node_global(char *name);
 Node *new_node_call(char *name);
 Node *new_node_funcdef(char *name);
 Node *new_node_block(Vlist *stmts);

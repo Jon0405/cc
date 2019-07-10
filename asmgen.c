@@ -7,6 +7,7 @@
 char *reg_names[ARGC_MAX] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 extern Vlist *variables;
+extern Vlist *globals;
 extern int *vcount;
 extern int lbegincount;
 extern int lendcount;
@@ -44,6 +45,11 @@ Type *gen_lval(Node *node) {
 		int offset = (*vcount - var->place + space) * SPACE_SIZE;
 		printf("  mov rax, rbp\n");
 		printf("  sub rax, %d\n", offset);
+		printf("  push rax\n");
+	} else if (node->ty == ND_GLOBAL) {
+		Variable *var = (Variable *)map_get(globals, node->name);
+		type = var->type;
+		printf("  lea rax, %s[rip]\n", node->name);
 		printf("  push rax\n");
 	} else {
 		error("should be a variable or a variable pointer!");
@@ -184,7 +190,7 @@ void gen(Node *node) {
 		return;
 	}
 
-	if (node->ty == ND_IDENT) {
+	if (node->ty == ND_IDENT || node->ty == ND_GLOBAL) {
 		Type *type = gen_lval(node);
 		printf("  pop rax\n");
 		if (type->ty == INT)

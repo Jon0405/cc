@@ -4,8 +4,8 @@ try() {
   expected="$1"
   input="$2"
 
-  ./cc "$input" > tmp.S
-  gcc -o tmp tmp.S
+  ./cc "$input" > tmp.s
+  gcc -o tmp tmp.s
   ./tmp
   actual="$?"
 
@@ -21,9 +21,9 @@ tryfunc() {
   expected="$1"
   input="$2"
 
-  ./cc "$input" > tmp.S
+  ./cc "$input" > tmp.s
   gcc -c ./test/$func.c
-  gcc -o tmp tmp.S $func.o
+  gcc -o tmp tmp.s $func.o
   ./tmp
   actual="$?"
 
@@ -78,5 +78,7 @@ try 13 "int main() {int a[5]; a[3] = 10; return a[3] + 3;}"
 try 8 "int main() {int a[5]; return sizeof(a + 3);}"
 try 4 "int main() {int a[5]; return sizeof(a[3]);}"
 try 4 "int main() {int a[5]; return sizeof(a[3] + 3);}"
+try 5 "int a; int main() {a = 5; return a;}"
+try 5 "int a[5]; int main() {a[3] = 5; return a[3];}"
 
 echo OK

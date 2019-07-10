@@ -42,6 +42,13 @@ Node *new_node_ident(char *name) {
 	return node;
 }
 
+Node *new_node_global(char *name) {
+	Node *node = malloc(sizeof(Node));
+	node->ty = ND_GLOBAL;
+	node->name = name;
+	return node;
+}
+
 Node *new_node_call(char *name) {
 	Node *node = malloc(sizeof(Node));
 	node->ty = ND_CALL;

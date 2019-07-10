@@ -56,8 +56,7 @@ int main(int argc, char **argv) {
 	while (curr_var != NULL) {
 		char *name = ((Map *)curr_var->data)->key;
 		Variable *var = (Variable *)((Map *)curr_var->data)->val;
-		printf("%s:\n", name);
-		printf("  .zero %d\n", var->place * 4);
+		printf(".comm %s,%d,%d\n", name, var->place * 4, var->place * 4);
 		curr_var = curr_var->next;
 	}
 

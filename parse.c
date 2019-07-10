@@ -26,7 +26,6 @@ program    = funcdef stmt
 */
 
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "cc.h"
 
@@ -415,10 +414,15 @@ Node *term() {
 			}
 		} else {
 			Variable *var = map_get(variables, ident_name);
-			if (var == NULL)
-				error_at(((Token *)(tokens->data))->input - 1, "undeclared variable!");
+			if (var == NULL) { // global variable
+				var = map_get(globals, ident_name);
+				if (var == NULL)
+					error_at(((Token *)(tokens->data))->input - 1, "undeclared variable!");
+				node = new_node_global(ident_name);
+			} else {
+				node = new_node_ident(ident_name);
+			}
 			curr_ptrof = var->type;
-			node = new_node_ident(ident_name);
 			Type *type = var->type;
 			if (consume('[')) {
 				if (!type->array_size) {
