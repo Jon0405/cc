@@ -338,12 +338,11 @@ Node *unary() {
 	return declare();
 }
 
-Node *_declare(Vlist *var_map, int *var_count) {
+Type *declare_type() {
 	Type *type = consume_type();
 	if (type != NULL) { // is a declaration
 		if (((Token *)(tokens->data))->ty != TK_IDENT)
 			error_at(((Token *)(tokens->data))->input, "should be an indentifier!");
-		char *ident_name = ((Token *)(tokens->data))->name;
 
 		// if declaring an array, get the array size
 		Vlist *curr = tokens->next;
@@ -355,36 +354,35 @@ Node *_declare(Vlist *var_map, int *var_count) {
 			curr = curr->next;
 			if (((Token *)(curr->data))->ty != ']')
 				error_at(((Token *)(tokens->data))->input, "should be ']'!");
-			tokens->next = curr->next;
-		}
-
-		// compute variable or array size
-		Variable *var = NULL;
-		if (var_count != NULL) {
-			*var_count += type_space(type);
-			var = new_var(*var_count, type);
-			if (type->array_size) // array space
-				*var_count += (type->array_size - 1) * type_space(type);
-			map_put(var_map, ident_name, var);
-		} else {
-			var = new_var(type->array_size? type->array_size * type_space(type): type_space(type), type);
-			map_put(var_map, ident_name, var);
-			tokens = tokens->next;
-			if (!consume(';'))
-				error_at(((Token *)(tokens->data))->input, "should be ';'!");
-			return NULL;
+			tokens->next = curr->next; // skip array index when declaring
 		}
 	}
-
-	return term();
+	return type;
 }
 
 Node *declare() {
-	return _declare(variables, vcount);
+	Type *type = declare_type();
+	if (type != NULL) {
+		char *ident_name = ((Token *)(tokens->data))->name;
+		*vcount += type_space(type);
+		Variable *var = new_var(*vcount, type);
+		if (type->array_size) // array space
+			*vcount += (type->array_size - 1) * type_space(type);
+		map_put(variables, ident_name, var);
+	}
+	return term();
 }
 
 void declare_global() {
-	_declare(globals, NULL);
+	Type *type = declare_type();
+	if (type == NULL)
+		error_at(((Token *)(tokens->data))->input, "should be a global variable declarition!");
+	char *ident_name = ((Token *)(tokens->data))->name;
+	Variable *var = new_var(type->array_size? type->array_size * type_space(type): type_space(type), type);
+	map_put(globals, ident_name, var);
+	tokens = tokens->next;
+	if (!consume(';'))
+		error_at(((Token *)(tokens->data))->input, "should be ';'!");
 }
 
 Node *term() {
