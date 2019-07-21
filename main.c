@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 	while (curr_var != NULL) {
 		char *name = ((Map *)curr_var->data)->key;
 		Variable *var = (Variable *)((Map *)curr_var->data)->val;
-		printf(".comm %s,%d,%d\n", name, var->place * 4, var->place * 4);
+		printf(".comm %s,%d,%d\n", name, var->place * SPACE_SIZE, var->place * SPACE_SIZE);
 		curr_var = curr_var->next;
 	}
 
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 		// get variables space
 		printf("  push rbp\n");
 		printf("  mov rbp, rsp\n");
-		printf("  sub rsp, %d\n", *vcount * 4);
+		printf("  sub rsp, %d\n", *vcount * SPACE_SIZE);
 
 		// set arguments to variables
 		gen(func->nodedef);
