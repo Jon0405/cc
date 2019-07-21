@@ -4,7 +4,7 @@
 // space (in bytes)
 #define WORD       8
 #define HALF_WORD  4
-#define SPACE_SIZE 4
+#define SPACE_SIZE 1
 
 #define space(len) (len / SPACE_SIZE)
 
