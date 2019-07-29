@@ -33,6 +33,9 @@ Type *gen_lval(Node *node) {
 		type = var->type;
 		int space = 0;
 		switch (type->ty) {
+			case CHAR:
+				space = space(BYTE);
+				break;
 			case INT:
 				space = space(HALF_WORD);
 				break;
@@ -164,10 +167,16 @@ void gen(Node *node) {
 			printf("  push %s\n", reg_names[regcount]);
 			printf("  pop rdi\n");
 			printf("  pop rax\n");
-			if (type->ty == INT)
-				printf("  mov DWORD PTR [rax], edi\n");
-			else	
-				printf("  mov [rax], rdi\n");
+			switch (type->ty) {
+				case CHAR:
+					printf("  mov BYTE PTR [rax], dl\n");
+					break;
+				case INT:
+					printf("  mov DWORD PTR [rax], edi\n");
+					break;
+				default: 
+					printf("  mov [rax], rdi\n");
+			}
 		}
 		return;
 	}
@@ -193,10 +202,16 @@ void gen(Node *node) {
 	if (node->ty == ND_IDENT || node->ty == ND_GLOBAL) {
 		Type *type = gen_lval(node);
 		printf("  pop rax\n");
-		if (type->ty == INT)
-			printf("  mov eax, DWORD PTR [rax]\n");
-		else
-			printf("  mov rax, [rax]\n");
+		switch (type->ty) {
+			case CHAR:
+				printf("  mov al, BYTE PTR [rax]\n");
+				break;
+			case INT:
+				printf("  mov eax, DWORD PTR [rax]\n");
+				break;
+			default:
+				printf("  mov rax, [rax]\n");
+		}
 		printf("  push rax\n");
 		return;
 	}
@@ -207,10 +222,16 @@ void gen(Node *node) {
 		printf("  pop rdi\n");
 		printf("  pop rax\n");
 		printf("  add rax, rdi\n");
-		if (type->ty == INT)
-			printf("  mov eax, DWORD PTR [rax]\n");
-		else
-			printf("  mov rax, [rax]\n");
+		switch (type->ty) {
+			case CHAR:
+				printf("  mov al, BYTE PTR [rax]\n");
+				break;
+			case INT:
+				printf("  mov eax, DWORD PTR [rax]\n");
+				break;
+			default:
+				printf("  mov rax, [rax]\n");
+		}
 		printf("  push rax\n");
 		return;
 	}

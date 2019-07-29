@@ -2,9 +2,10 @@
 #define _CC_H
 
 // space (in bytes)
-#define WORD       8
-#define HALF_WORD  4
-#define SPACE_SIZE 1
+#define BYTE       1
+#define WORD       BYTE * 8
+#define HALF_WORD  WORD / 2
+#define SPACE_SIZE BYTE
 
 #define space(len) (len / SPACE_SIZE)
 
@@ -22,6 +23,7 @@ typedef struct {
 
 // type
 enum {
+	CHAR,
 	INT,
 	LONG,
 	PTR,
@@ -55,6 +57,7 @@ enum {
 	TK_WHILE,     // while
 	TK_FOR,       // for
 	TK_SIZEOF,
+	TK_CHAR,
 	TK_INT,
 	TK_LONG,
 };

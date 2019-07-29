@@ -67,6 +67,15 @@ void tokenize() {
 			continue;
 		}
 
+		if (strncmp(p, "char", 4) == 0 && !is_alnum(p[4])) {
+			Token *token = malloc(sizeof(Token));
+			token->ty = TK_CHAR;
+			token->input = p;
+			vlist_push(tokens, token);
+			p += 4;
+			continue;
+		}
+
 		if (strncmp(p, "int", 3) == 0 && !is_alnum(p[3])) {
 			Token *token = malloc(sizeof(Token));
 			token->ty = TK_INT;

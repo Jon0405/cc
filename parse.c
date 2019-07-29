@@ -47,6 +47,9 @@ int consume(int ty) {
 Type *consume_type() {
 	Type *type = NULL;
 	switch (((Token *)(tokens->data))->ty) {
+		case TK_CHAR:
+			type = new_type(CHAR, NULL);
+			break;
 		case TK_INT:
 			type = new_type(INT, NULL);
 			break;
@@ -69,6 +72,9 @@ Type *consume_type() {
 int type_space(Type *type) {
 	int space = 0;
 	switch (type->ty) {
+		case CHAR:
+			space = space(BYTE);
+			break;
 		case INT:
 			space = space(HALF_WORD);
 			break;
@@ -84,6 +90,9 @@ int type_space(Type *type) {
 Node *type_size(Type *type) {
 	Node *node = NULL;
 	switch (type->ty) {
+		case CHAR:
+			node = new_node_num(BYTE);
+			break;
 		case INT:
 			node = new_node_num(HALF_WORD);
 			break;
