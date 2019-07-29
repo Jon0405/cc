@@ -169,7 +169,7 @@ void gen(Node *node) {
 			printf("  pop rax\n");
 			switch (type->ty) {
 				case CHAR:
-					printf("  mov BYTE PTR [rax], dl\n");
+					printf("  mov BYTE PTR [rax], dil\n");
 					break;
 				case INT:
 					printf("  mov DWORD PTR [rax], edi\n");
@@ -204,7 +204,7 @@ void gen(Node *node) {
 		printf("  pop rax\n");
 		switch (type->ty) {
 			case CHAR:
-				printf("  mov al, BYTE PTR [rax]\n");
+				printf("  movsx eax, BYTE PTR [rax]\n");
 				break;
 			case INT:
 				printf("  mov eax, DWORD PTR [rax]\n");
@@ -224,7 +224,7 @@ void gen(Node *node) {
 		printf("  add rax, rdi\n");
 		switch (type->ty) {
 			case CHAR:
-				printf("  mov al, BYTE PTR [rax]\n");
+				printf("  movsx eax, BYTE PTR [rax]\n");
 				break;
 			case INT:
 				printf("  mov eax, DWORD PTR [rax]\n");
@@ -242,10 +242,16 @@ void gen(Node *node) {
 
 		printf("  pop rdi\n");
 		printf("  pop rax\n");
-		if (type->ty == INT)
-			printf("  mov DWORD PTR [rax], edi\n");
-		else	
-			printf("  mov [rax], rdi\n");
+		switch (type->ty) {
+			case CHAR:
+				printf("  mov BYTE PTR [rax], dil\n");
+				break;
+			case INT:
+				printf("  mov DWORD PTR [rax], edi\n");
+				break;
+			default:
+				printf("  mov [rax], rdi\n");
+		}
 		printf("  push rdi\n");
 		return;
 	}

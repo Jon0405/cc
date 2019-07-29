@@ -84,5 +84,6 @@ try 4 "int a; int main() {return sizeof(a);}"
 try 20 "int a[5]; int main() {return sizeof(a);}"
 try 8 "int main() {char a = 8; return a;}"
 try 1 "int main() {char a; return sizeof(a);}"
+try 3 "int main() {char x[3]; x[0] = -1; x[1] = 2; int y; y = 4; return x[0] + y;}"
 
 echo OK
